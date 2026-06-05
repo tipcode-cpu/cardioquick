@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cardioquick-pwa-v1';
+const CACHE_NAME = 'cardioquick-pwa-v4-themeselector';
 const ASSETS = ['./', './index.html', './manifest.json', './service-worker.js', './icon.svg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));

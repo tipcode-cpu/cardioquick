@@ -29,7 +29,7 @@ button:hover { opacity:.86; }
 .clearBtn { width:auto; background:#d71920; color:white; font-weight:bold; border-radius:7px; padding:8px 12px; }
 .topClearWrap { position:fixed; top:10px; right:10px; z-index:9999; }
 .bottomActions { text-align:center; margin-top:12px; }
-.result { background:#ffffff; color:#111111; border-left:4px solid #008a6a; border-radius:7px; padding:12px; margin-top:12px; line-height:1.55; }
+.result { background:var(--card)fff; color:#111111; border-left:4px solid #008a6a; border-radius:7px; padding:12px; margin-top:12px; line-height:1.55; }
 .result * { color:#111111; }
 .result .muted { color:#444444; }
 .result .warn { color:#9a4a00; }
@@ -47,7 +47,55 @@ th { background:#e8eef7; color:#111111; }
 .prevent-grid div { display:flex; flex-direction:column; gap:4px; }
 .prevent-grid input, .prevent-grid select { width:100%; }
 .footer { color:var(--muted); font-size:11px; margin-top:12px; line-height:1.4; }
-</style>
+
+    /* Theme-safe legacy result/detail blocks */
+    .result, .result * {
+      color: var(--ink);
+    }
+    .result table,
+    .ldl-table,
+    .detail-table {
+      background: var(--card);
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    .result th,
+    .result td,
+    .ldl-table th,
+    .ldl-table td,
+    .detail-table th,
+    .detail-table td {
+      background: var(--card);
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    .result th,
+    .ldl-table th,
+    .detail-table th {
+      background: var(--card2);
+      color: var(--ink);
+    }
+    .result tr:nth-child(even) td,
+    .ldl-table tr:nth-child(even) td,
+    .detail-table tr:nth-child(even) td {
+      background: color-mix(in srgb, var(--success-bg) 45%, var(--card));
+    }
+    .copybox,
+    input[readonly] {
+      background: var(--field);
+      color: var(--field-ink);
+      border: 1px solid var(--line);
+    }
+    .whitebox,
+    .panel-result,
+    .ldl-result,
+    .uacr-result {
+      background: var(--card2) !important;
+      color: var(--ink) !important;
+      border-color: var(--line) !important;
+    }
+
+  </style>
 <script language="javascript">
 window.resizeTo(1180, 900);
 
@@ -32818,6 +32866,75 @@ function copyLDLFormatted(value, method) {
 
 
 <script>
+
+function applyTheme(theme) {
+  if (theme === 'system') {
+    localStorage.removeItem('cardioquick-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  } else {
+    localStorage.setItem('cardioquick-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+  updateThemeButton(); syncThemeSelector();
+}
+
+function getCurrentTheme() {
+  return document.documentElement.getAttribute('data-theme') || 'light';
+}
+
+function updateThemeButton() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  const t = getCurrentTheme();
+  btn.textContent = t === 'dark' ? 'Dark mode' : 'Light mode';
+}
+
+function toggleTheme() {
+  const current = getCurrentTheme();
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('cardioquick-theme');
+  if (saved === 'dark' || saved === 'light') {
+    document.documentElement.setAttribute('data-theme', saved);
+  } else {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  }
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+      if (!localStorage.getItem('cardioquick-theme')) {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+        updateThemeButton(); syncThemeSelector();
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', updateThemeButton);
+})();
+
+
+function setThemeFromSelector() {
+  var sel = document.getElementById('themeSelector');
+  if (!sel) return;
+  applyTheme(sel.value);
+}
+
+function syncThemeSelector() {
+  var sel = document.getElementById('themeSelector');
+  if (!sel) return;
+
+  var saved = localStorage.getItem('cardioquick-theme');
+  if (!saved) sel.value = 'system';
+  else sel.value = saved;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  syncThemeSelector();
+  updateThemeButton(); syncThemeSelector();
+});
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./service-worker.js').catch(function(err) { console.log('Service worker registration failed:', err); });

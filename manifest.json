@@ -1,7 +1,7 @@
 {
   "name": "CardioQuick Calculator",
   "short_name": "CardioQuick",
-  "start_url": "./index.html?v=10",
+  "start_url": "./index.html?v=11",
   "display": "standalone",
   "background_color": "#101216",
   "theme_color": "#7cc7ff",

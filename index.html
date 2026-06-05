@@ -32818,6 +32818,54 @@ function copyLDLFormatted(value, method) {
 
 
 <script>
+
+function applyTheme(theme) {
+  if (theme === 'system') {
+    localStorage.removeItem('cardioquick-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  } else {
+    localStorage.setItem('cardioquick-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+  updateThemeButton();
+}
+
+function getCurrentTheme() {
+  return document.documentElement.getAttribute('data-theme') || 'light';
+}
+
+function updateThemeButton() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  const t = getCurrentTheme();
+  btn.textContent = t === 'dark' ? 'Dark mode' : 'Light mode';
+}
+
+function toggleTheme() {
+  const current = getCurrentTheme();
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('cardioquick-theme');
+  if (saved === 'dark' || saved === 'light') {
+    document.documentElement.setAttribute('data-theme', saved);
+  } else {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  }
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+      if (!localStorage.getItem('cardioquick-theme')) {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+        updateThemeButton();
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', updateThemeButton);
+})();
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./service-worker.js').catch(function(err) { console.log('Service worker registration failed:', err); });

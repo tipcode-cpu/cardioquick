@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cardioquick-pwa-v6-final-themefix';
+const CACHE_NAME = 'cardioquick-pwa-v7-button-tone';
 const ASSETS = ['./', './index.html', './manifest.json', './service-worker.js', './icon.svg'];
 
 self.addEventListener('install', event => {

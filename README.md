@@ -1,10 +1,9 @@
-# CardioQuick PWA V6
+# CardioQuick PWA V7
 
-Fixes:
-- Dark theme LDL table readability
-- Adds bottom Appearance selector
-- Keeps original calculator formulas and workflow from uploaded index.html
-- Updates service worker cache
+Changes:
+- Softer Mayo/UpToDate-style calculate button colors
+- Keeps clear buttons red
+- Preserves dark/light theme support and original calculator logic
 
-After uploading to GitHub, hard refresh with Ctrl+F5 or open:
-https://tipcode-cpu.github.io/cardioquick/?v=6
+After uploading, check:
+https://tipcode-cpu.github.io/cardioquick/?v=7

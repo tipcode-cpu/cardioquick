@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#101216">
 <link rel="manifest" href="manifest.json">
 <meta http-equiv="x-ua-compatible" content="IE=edge">
-<title>CardioQuick Calculator PWA V1</title>
+<title>CardioQuick Calculator PWA V5</title>
 <style>
 :root {
   --bg:#101216; --card:#1c2028; --card2:#252a34; --text:#e8eaf0; --muted:#aab0bd;
@@ -29,7 +29,7 @@ button:hover { opacity:.86; }
 .clearBtn { width:auto; background:#d71920; color:white; font-weight:bold; border-radius:7px; padding:8px 12px; }
 .topClearWrap { position:fixed; top:10px; right:10px; z-index:9999; }
 .bottomActions { text-align:center; margin-top:12px; }
-.result { background:var(--card)fff; color:#111111; border-left:4px solid #008a6a; border-radius:7px; padding:12px; margin-top:12px; line-height:1.55; }
+.result { background:var(--card2); color:#111111; border-left:4px solid #008a6a; border-radius:7px; padding:12px; margin-top:12px; line-height:1.55; }
 .result * { color:#111111; }
 .result .muted { color:#444444; }
 .result .warn { color:#9a4a00; }
@@ -95,7 +95,139 @@ th { background:#e8eef7; color:#111111; }
       border-color: var(--line) !important;
     }
 
-  </style>
+  
+/* === V5 theme readability fix === */
+:root {
+  --ink: var(--text);
+  --line: var(--border);
+  --field: var(--card2);
+  --field-ink: var(--text);
+  --success-bg: #10231f;
+  --success-line: #008a6a;
+  --success-ink: var(--text);
+  --primary-row-bg: #1f2937;
+  --primary-row-text: #f8fafc;
+  --table-head-bg: #252a34;
+  --table-border: #4b5563;
+}
+
+html[data-theme="light"] {
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --card2:#f1f5f9;
+  --text:#0f172a;
+  --muted:#64748b;
+  --primary:#2563eb;
+  --accent:#0f766e;
+  --warn:#b45309;
+  --err:#b91c1c;
+  --border:#e2e8f0;
+  --ink:var(--text);
+  --line:var(--border);
+  --field:#ffffff;
+  --field-ink:#0f172a;
+  --success-bg:#ecfdf5;
+  --success-line:#bbf7d0;
+  --success-ink:#065f46;
+  --primary-row-bg:#ecfdf5;
+  --primary-row-text:#064e3b;
+  --table-head-bg:#e8eef7;
+  --table-border:#cfd5df;
+}
+
+html[data-theme="dark"] {
+  --bg:#101216;
+  --card:#1c2028;
+  --card2:#252a34;
+  --text:#e8eaf0;
+  --muted:#aab0bd;
+  --primary:#7cc7ff;
+  --accent:#77e0b6;
+  --warn:#ffcc66;
+  --err:#ff8585;
+  --border:#343b4a;
+  --ink:var(--text);
+  --line:var(--border);
+  --field:var(--card2);
+  --field-ink:var(--text);
+  --success-bg:#10231f;
+  --success-line:#008a6a;
+  --success-ink:#e8eaf0;
+  --primary-row-bg:#1f2937;
+  --primary-row-text:#f8fafc;
+  --table-head-bg:#252a34;
+  --table-border:#4b5563;
+}
+
+.result {
+  background: var(--card2) !important;
+  color: var(--text) !important;
+  border-left: 4px solid var(--accent) !important;
+}
+
+.result * {
+  color: var(--text) !important;
+}
+
+.result .muted,
+.result .muted * {
+  color: var(--muted) !important;
+}
+
+.result .warn,
+.result .warn * {
+  color: var(--warn) !important;
+}
+
+.result .err,
+.result .err * {
+  color: var(--err) !important;
+}
+
+.result input[readonly],
+#ldlCopyResult {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+table,
+.result table {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-collapse: collapse;
+}
+
+th, td,
+.result th, .result td {
+  border: 1px solid var(--table-border) !important;
+  color: var(--text) !important;
+}
+
+th,
+.result th {
+  background: var(--table-head-bg) !important;
+  color: var(--text) !important;
+}
+
+tr.primaryRow td,
+.result tr.primaryRow td {
+  background: var(--primary-row-bg) !important;
+  color: var(--primary-row-text) !important;
+}
+
+tr.primaryRow td *,
+.result tr.primaryRow td * {
+  color: var(--primary-row-text) !important;
+}
+
+.result tr:not(.primaryRow) td {
+  background: var(--card) !important;
+  color: var(--text) !important;
+}
+
+
+</style>
 <script language="javascript">
 window.resizeTo(1180, 900);
 

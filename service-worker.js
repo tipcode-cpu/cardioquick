@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cardioquick-pwa-v11-restore-copy';
+const CACHE_NAME = 'cardioquick-pwa-v12-responsive';
 const ASSETS = ['./', './index.html', './manifest.json', './service-worker.js', './icon.svg', './zip-sdi.txt'];
 
 self.addEventListener('install', event => {

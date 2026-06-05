@@ -1,13 +1,16 @@
-# CardioQuick PWA V11
+# CardioQuick PWA V12
 
 Changes:
-- Restored the individual per-field "copy" buttons in the PREVENT input grid (Age, Sex, Total-C, HDL-C, BMI, eGFR, UACR) — they were only hidden by CSS, now visible again
-- They coexist with the "Autofill from above" button, which fills all available fields at once
-- Added missing type="button" on the BMI/eGFR copy buttons for safety
-- (from V10) "Copy all" / "Autofill from above" now actually fills the PREVENT inputs
-- (from V9) ZIP->SDI lookup moved to external packed file zip-sdi.txt; index.html ~54 KB
+- Added a responsive layout for narrow screens (<= 640px), the app previously had no media queries and forced the desktop layout onto phones
+- Card grid collapses from 2 columns to 1 column on mobile
+- PREVENT input grid collapses from 5 columns to 2 columns (inputs were unusably narrow before)
+- Inputs/selects now stretch to fit the screen width instead of fixed pixel widths
+- "Autofill from above" button goes full-width on mobile for an easier tap target
+- (from V11) individual per-field "copy" buttons restored
+- (from V10) "Autofill from above" actually fills the PREVENT inputs
+- (from V9) ZIP->SDI lookup in external packed file zip-sdi.txt; index.html ~54 KB
 
 After upload, test (hard-refresh / clear site data if the old service worker is cached):
-https://tipcode-cpu.github.io/cardioquick/?v=11
+https://tipcode-cpu.github.io/cardioquick/?v=12
 
 Files to deploy: index.html, manifest.json, service-worker.js, icon.svg, zip-sdi.txt

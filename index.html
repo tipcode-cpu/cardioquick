@@ -283,6 +283,17 @@ button[onclick*="copy"] {
   vertical-align:middle;
 }
 
+@media (max-width: 640px) {
+  body { padding:14px; }
+  .grid { grid-template-columns:1fr; gap:12px; }
+  .full { grid-column:span 1; }
+  h1 { font-size:22px; }
+  .row input, .row select { flex:1 1 auto; min-width:0; }
+  .prevent-grid { grid-template-columns:repeat(2,1fr); }
+  .prevent-grid input, .prevent-grid select { width:100%; min-width:0; }
+  .copyAllBtn { display:block; width:100%; margin:8px 0 0; }
+}
+
 </style>
 <script language="javascript">
 window.resizeTo(1180, 900);

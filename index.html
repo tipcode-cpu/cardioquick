@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#101216">
 <link rel="manifest" href="manifest.json">
 <meta http-equiv="x-ua-compatible" content="IE=edge">
-<title>CardioQuick Calculator PWA V5</title>
+<title>CardioQuick Calculator PWA V6</title>
 <style>
 :root {
   --bg:#101216; --card:#1c2028; --card2:#252a34; --text:#e8eaf0; --muted:#aab0bd;
@@ -29,20 +29,20 @@ button:hover { opacity:.86; }
 .clearBtn { width:auto; background:#d71920; color:white; font-weight:bold; border-radius:7px; padding:8px 12px; }
 .topClearWrap { position:fixed; top:10px; right:10px; z-index:9999; }
 .bottomActions { text-align:center; margin-top:12px; }
-.result { background:var(--card2); color:#111111; border-left:4px solid #008a6a; border-radius:7px; padding:12px; margin-top:12px; line-height:1.55; }
-.result * { color:#111111; }
-.result .muted { color:#444444; }
-.result .warn { color:#9a4a00; }
-.result .err { color:#b00020; }
+.result { background:var(--card2); color:var(--text); border-left:4px solid var(--accent); border-radius:7px; padding:12px; margin-top:12px; line-height:1.55; }
+.result * { color:var(--text); }
+.result .muted { color:var(--muted); }
+.result .warn { color:var(--warn); }
+.result .err { color:var(--err); }
 .warn { color:var(--warn); font-weight:600; margin-top:8px; white-space:pre-line; }
 .err { color:var(--err); font-weight:700; }
 .muted { color:var(--muted); font-size:12px; }
 .pill { display:inline-block; border:1px solid var(--border); background:var(--card2); border-radius:999px; padding:6px 10px; margin-right:6px; cursor:pointer; }
 .pill input { width:auto; margin-right:4px; }
 table { width:100%; border-collapse:collapse; margin-top:10px; }
-th,td { border:1px solid #cfd5df; padding:8px; text-align:left; color:#111111; }
-th { background:#e8eef7; color:#111111; }
-.primaryRow { background:#f2fbf8; color:#111111; }
+th,td { border:1px solid var(--table-border); padding:8px; text-align:left; color:var(--text); }
+th { background:var(--table-head-bg); color:var(--text); }
+.primaryRow { background:var(--primary-row-bg); color:var(--primary-row-text); }
 .prevent-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
 .prevent-grid div { display:flex; flex-direction:column; gap:4px; }
 .prevent-grid input, .prevent-grid select { width:100%; }
@@ -96,46 +96,9 @@ th { background:#e8eef7; color:#111111; }
     }
 
   
-/* === V5 theme readability fix === */
+/* === V6 definitive theme/readability fix === */
 :root {
-  --ink: var(--text);
-  --line: var(--border);
-  --field: var(--card2);
-  --field-ink: var(--text);
-  --success-bg: #10231f;
-  --success-line: #008a6a;
-  --success-ink: var(--text);
-  --primary-row-bg: #1f2937;
-  --primary-row-text: #f8fafc;
-  --table-head-bg: #252a34;
-  --table-border: #4b5563;
-}
-
-html[data-theme="light"] {
-  --bg:#f8fafc;
-  --card:#ffffff;
-  --card2:#f1f5f9;
-  --text:#0f172a;
-  --muted:#64748b;
-  --primary:#2563eb;
-  --accent:#0f766e;
-  --warn:#b45309;
-  --err:#b91c1c;
-  --border:#e2e8f0;
-  --ink:var(--text);
-  --line:var(--border);
-  --field:#ffffff;
-  --field-ink:#0f172a;
-  --success-bg:#ecfdf5;
-  --success-line:#bbf7d0;
-  --success-ink:#065f46;
-  --primary-row-bg:#ecfdf5;
-  --primary-row-text:#064e3b;
-  --table-head-bg:#e8eef7;
-  --table-border:#cfd5df;
-}
-
-html[data-theme="dark"] {
+  color-scheme: dark;
   --bg:#101216;
   --card:#1c2028;
   --card2:#252a34;
@@ -146,86 +109,133 @@ html[data-theme="dark"] {
   --warn:#ffcc66;
   --err:#ff8585;
   --border:#343b4a;
-  --ink:var(--text);
-  --line:var(--border);
-  --field:var(--card2);
-  --field-ink:var(--text);
-  --success-bg:#10231f;
-  --success-line:#008a6a;
-  --success-ink:#e8eaf0;
+  --table-head-bg:#252a34;
+  --table-border:#667085;
   --primary-row-bg:#1f2937;
   --primary-row-text:#f8fafc;
+  --field:var(--card2);
+  --field-ink:var(--text);
+  --ink:var(--text);
+  --line:var(--border);
+}
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --card2:#f1f5f9;
+  --text:#0f172a;
+  --muted:#64748b;
+  --primary:#2563eb;
+  --accent:#0f766e;
+  --warn:#b45309;
+  --err:#b91c1c;
+  --border:#e2e8f0;
+  --table-head-bg:#e8eef7;
+  --table-border:#cbd5e1;
+  --primary-row-bg:#ecfdf5;
+  --primary-row-text:#064e3b;
+  --field:#ffffff;
+  --field-ink:#0f172a;
+  --ink:var(--text);
+  --line:var(--border);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:#101216;
+  --card:#1c2028;
+  --card2:#252a34;
+  --text:#e8eaf0;
+  --muted:#aab0bd;
+  --primary:#7cc7ff;
+  --accent:#77e0b6;
+  --warn:#ffcc66;
+  --err:#ff8585;
+  --border:#343b4a;
   --table-head-bg:#252a34;
-  --table-border:#4b5563;
+  --table-border:#667085;
+  --primary-row-bg:#1f2937;
+  --primary-row-text:#f8fafc;
+  --field:var(--card2);
+  --field-ink:var(--text);
+  --ink:var(--text);
+  --line:var(--border);
 }
-
+body, .card, input, select, .result, table, th, td {
+  transition: background-color .12s ease, color .12s ease, border-color .12s ease;
+}
+body {
+  background:var(--bg) !important;
+  color:var(--text) !important;
+}
+.card {
+  background:var(--card) !important;
+  border-color:var(--border) !important;
+}
+input, select {
+  background:var(--field) !important;
+  color:var(--field-ink) !important;
+  border-color:var(--border) !important;
+}
 .result {
-  background: var(--card2) !important;
-  color: var(--text) !important;
-  border-left: 4px solid var(--accent) !important;
+  background:var(--card2) !important;
+  color:var(--text) !important;
+  border-left-color:var(--accent) !important;
 }
-
 .result * {
-  color: var(--text) !important;
+  color:var(--text) !important;
 }
-
-.result .muted,
-.result .muted * {
-  color: var(--muted) !important;
+.result .muted, .result .muted * {
+  color:var(--muted) !important;
 }
-
-.result .warn,
-.result .warn * {
-  color: var(--warn) !important;
+.result .warn, .result .warn * {
+  color:var(--warn) !important;
 }
-
-.result .err,
-.result .err * {
-  color: var(--err) !important;
+.result .err, .result .err * {
+  color:var(--err) !important;
 }
-
-.result input[readonly],
-#ldlCopyResult {
-  background: var(--card) !important;
-  color: var(--text) !important;
-  border: 1px solid var(--border) !important;
+.result input[readonly], #ldlCopyResult {
+  background:var(--card) !important;
+  color:var(--text) !important;
+  border:1px solid var(--border) !important;
 }
-
-table,
-.result table {
-  background: var(--card) !important;
-  color: var(--text) !important;
-  border-collapse: collapse;
+table, .result table {
+  background:var(--card) !important;
+  color:var(--text) !important;
 }
-
-th, td,
-.result th, .result td {
-  border: 1px solid var(--table-border) !important;
-  color: var(--text) !important;
+th, .result th {
+  background:var(--table-head-bg) !important;
+  color:var(--text) !important;
+  border-color:var(--table-border) !important;
 }
-
-th,
-.result th {
-  background: var(--table-head-bg) !important;
-  color: var(--text) !important;
+td, .result td {
+  background:var(--card) !important;
+  color:var(--text) !important;
+  border-color:var(--table-border) !important;
 }
-
-tr.primaryRow td,
-.result tr.primaryRow td {
-  background: var(--primary-row-bg) !important;
-  color: var(--primary-row-text) !important;
+tr.primaryRow, tr.primaryRow td,
+.result tr.primaryRow, .result tr.primaryRow td {
+  background:var(--primary-row-bg) !important;
+  color:var(--primary-row-text) !important;
 }
-
-tr.primaryRow td *,
-.result tr.primaryRow td * {
-  color: var(--primary-row-text) !important;
+tr.primaryRow *, .result tr.primaryRow * {
+  color:var(--primary-row-text) !important;
 }
-
-.result tr:not(.primaryRow) td {
-  background: var(--card) !important;
-  color: var(--text) !important;
+.themePanel {
+  max-width:1250px;
+  margin:18px auto 8px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px 16px;
 }
-
+.themePanel label {
+  display:block;
+  margin:0 0 8px;
+  font-weight:700;
+}
+.themePanel select {
+  width:220px;
+}
 
 </style>
 <script language="javascript">
@@ -32911,6 +32921,19 @@ var ZIP_SDI_DECILE = {
 
 function clearAll() { location.reload(); }
 </script>
+
+<script>
+(function initCardioQuickThemeEarly(){
+  try {
+    var saved = localStorage.getItem('cardioquick-theme');
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
+  } catch(e) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+</script>
+
 </head>
 <body>
 <div class="topClearWrap"><button id="topClearAll" class="clearBtn" onclick="clearAll()">Clear all</button></div>
@@ -32978,7 +33001,18 @@ function clearAll() { location.reload(); }
 
   <div class="full footer">
     Clinical decision support only. Verify units, patient eligibility, and local laboratory standards. PREVENT is intended for adults 30–79 years without prior CVD. This offline build implements Total CVD, ASCVD, and HF with automatic PREVENT model selection; CHD and stroke subtype coefficients are not included.
-    <div class="bottomActions"><button onclick="clearAll()" class="clearBtn">Clear all</button></div>
+    
+<div class="themePanel">
+  <label for="themeSelector">Appearance</label>
+  <select id="themeSelector" onchange="setThemeFromSelector()">
+    <option value="system">Follow system</option>
+    <option value="light">Light theme</option>
+    <option value="dark">Dark theme</option>
+  </select>
+  <div class="muted" style="margin-top:6px;">Theme preference is saved locally on this device.</div>
+</div>
+
+<div class="bottomActions"><button onclick="clearAll()" class="clearBtn">Clear all</button></div>
   </div>
 </div>
 <div id="derivationWarning" style="display:none;color:#b45309;font-weight:bold;margin:12px 0;"></div>

@@ -1,4 +1,10 @@
-# CardioQuick PWA V5
+# CardioQuick PWA V6
 
-Fixes dark/light theme readability of LDL result table.
-Upload all files to GitHub repository root and hard refresh the deployed page.
+Fixes:
+- Dark theme LDL table readability
+- Adds bottom Appearance selector
+- Keeps original calculator formulas and workflow from uploaded index.html
+- Updates service worker cache
+
+After uploading to GitHub, hard refresh with Ctrl+F5 or open:
+https://tipcode-cpu.github.io/cardioquick/?v=6

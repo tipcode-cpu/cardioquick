@@ -1,12 +1,10 @@
 {
   "name": "CardioQuick Calculator",
   "short_name": "CardioQuick",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "./index.html?v=6",
   "display": "standalone",
   "background_color": "#101216",
-  "theme_color": "#101216",
-  "description": "Clinical cardiology calculator: LDL-C, BMI, eGFR, UACR, PREVENT.",
+  "theme_color": "#7cc7ff",
   "icons": [
     {
       "src": "icon.svg",

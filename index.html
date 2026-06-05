@@ -44,8 +44,8 @@ th,td { border:1px solid var(--table-border); padding:8px; text-align:left; colo
 th { background:var(--table-head-bg); color:var(--text); }
 .primaryRow { background:var(--primary-row-bg); color:var(--primary-row-text); }
 .prevent-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
-.prevent-grid div { display:flex; flex-direction:column; gap:4px; }
-.prevent-grid input, .prevent-grid select { width:100%; }
+.prevent-grid div { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.prevent-grid input, .prevent-grid select { width:100%; min-width:0; max-width:100%; box-sizing:border-box; }
 .footer { color:var(--muted); font-size:11px; margin-top:12px; line-height:1.4; }
 
     /* Theme-safe legacy result/detail blocks */

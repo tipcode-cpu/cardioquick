@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cardioquick-pwa-v9-sdi-external';
+const CACHE_NAME = 'cardioquick-pwa-v10-autofill';
 const ASSETS = ['./', './index.html', './manifest.json', './service-worker.js', './icon.svg', './zip-sdi.txt'];
 
 self.addEventListener('install', event => {

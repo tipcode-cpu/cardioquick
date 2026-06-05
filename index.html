@@ -684,7 +684,8 @@ function clearAll() { location.reload(); }
   </div>
 
   <div class="card full">
-    <h2>5. AHA PREVENT Calculator <button type="button" class="copyAllBtn" onclick="copyPreventInputsAll()">Copy all</button></h2>
+    <h2>5. AHA PREVENT Calculator <button type="button" class="copyAllBtn" onclick="copyPreventInputsAll()">Autofill from above</button></h2>
+    <div id="prev-copyall-msg" class="muted" style="font-size:12px;margin:-4px 0 8px;"></div>
     <div class="muted">Offline PREVENT implementation. HbA1c, UACR, and SDI are optional enhancers. ZIP code is automatically converted to SDI decile using the embedded Robert Graham Center ZCTA SDI_score dataset (2015–2019).</div>
     <div class="prevent-grid">
       <div><label>Age <button type="button" onclick="copyFromEGFRSexAge()" style="padding:2px 6px;width:auto;">copy</button></label><input id="prev-age" type="number"></div>
@@ -833,56 +834,42 @@ function getSelectTextSafe(id) {
   if (el.options && el.selectedIndex >= 0) return el.options[el.selectedIndex].text;
   return el.value || "";
 }
+// "Copy all": pull every available value from the calculators above into the
+// PREVENT inputs in one click, by running each individual autofill helper.
 function copyPreventInputsAll() {
-  var sex = "";
-  var male = document.getElementById("prev-m");
-  var female = document.getElementById("prev-f");
-  if (male && male.checked) sex = "Male";
-  if (female && female.checked) sex = "Female";
+  // Snapshot the PREVENT fields so we can report what actually changed.
+  var fields = ["prev-age", "prev-sbp", "prev-tc", "prev-hdl",
+                "prev-bmi", "prev-egfr", "prev-uacr"];
+  var before = {};
+  fields.forEach(function(id) {
+    var el = document.getElementById(id);
+    before[id] = el ? el.value : "";
+  });
+  var sexBefore = (document.getElementById("prev-f") || {}).checked;
 
-  var lines = [];
-  function add(label, value, unit) {
-    if (value !== null && value !== undefined && String(value).trim() !== "") {
-      lines.push(label + ": " + String(value).trim() + (unit ? " " + unit : ""));
+  var fns = ["copyFromEGFRSexAge", "copyFromLipids",
+             "copyFromBMI", "copyFromEGFR", "copyFromUACR"];
+  fns.forEach(function(name) {
+    try { if (typeof window[name] === "function") window[name](); } catch (e) {}
+  });
+
+  // Count how many fields received a value.
+  var filled = 0;
+  fields.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.value !== "" && el.value !== before[id]) filled++;
+  });
+  var sexAfter = (document.getElementById("prev-f") || {}).checked;
+  if (sexAfter !== sexBefore) filled++;
+
+  var msg = document.getElementById("prev-copyall-msg");
+  if (msg) {
+    if (filled > 0) {
+      msg.innerHTML = "Filled " + filled + " field" + (filled === 1 ? "" : "s") +
+                      " from the calculators above.";
+    } else {
+      msg.innerHTML = "Nothing to copy yet \u2014 enter or calculate values in the sections above first.";
     }
-  }
-
-  add("Age", getValSafe("prev-age"), "years");
-  add("Sex", sex, "");
-  add("SBP", getValSafe("prev-sbp"), "mmHg");
-  add("BP treatment", getSelectTextSafe("prev-htn"), "");
-  add("Statin use", getSelectTextSafe("prev-statin"), "");
-  add("Total-C", getValSafe("prev-tc"), "mg/dL");
-  add("HDL-C", getValSafe("prev-hdl"), "mg/dL");
-  add("Diabetes", getSelectTextSafe("prev-dm"), "");
-  add("Current smoking", getSelectTextSafe("prev-smoke"), "");
-  add("BMI", getValSafe("prev-bmi"), "kg/m²");
-  add("eGFR", getValSafe("prev-egfr"), "mL/min/1.73m²");
-  add("HbA1c", getValSafe("prev-hba1c"), "%");
-  add("UACR", getValSafe("prev-uacr"), "mg/g");
-  add("ZIP code", getValSafe("prev-zip"), "");
-  add("SDI decile", getValSafe("prev-sdi"), "");
-
-  var resultText = "";
-  var r = document.getElementById("prevent-result");
-  if (r && r.innerText && r.innerText.indexOf("Result will appear here") === -1) {
-    resultText = r.innerText.trim();
-  }
-
-  var txt = "AHA PREVENT inputs\n" + lines.join("\n");
-  if (resultText) txt += "\n\nAHA PREVENT result\n" + resultText;
-
-  if (typeof copyText === "function") {
-    copyText(txt);
-  } else if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(txt);
-  } else {
-    var ta = document.createElement("textarea");
-    ta.value = txt;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
   }
 }
 </script>

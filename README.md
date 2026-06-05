@@ -1,13 +1,12 @@
-# CardioQuick PWA V9
+# CardioQuick PWA V10
 
 Changes:
-- Moved the large embedded ZIP→SDI decile lookup out of index.html into an external file (zip-sdi.txt)
-- index.html shrunk from ~404 KB to ~54 KB (parses far faster on load)
-- SDI table stored as a packed string (1 char per ZIP slot, base ZIP 1001); decode is O(1) index lookup
-- Table is fetched lazily and warmed on idle; cached by the service worker for offline use
-- Cache bumped to v9; zip-sdi.txt added to precached assets
+- Fixed the PREVENT "Copy all" button: it now actually autofills the PREVENT inputs from the calculators above (Age/Sex from eGFR, Total-C/HDL from lipids, BMI, eGFR, UACR) in one click
+- Previously the button only copied a text summary to the clipboard, so the inputs never filled — relabeled to "Autofill from above"
+- Added a small status line under the section header reporting how many fields were filled
+- (from V9) ZIP→SDI lookup moved to external packed file zip-sdi.txt; index.html ~54 KB
 
 After upload, test:
-https://tipcode-cpu.github.io/cardioquick/?v=9
+https://tipcode-cpu.github.io/cardioquick/?v=10
 
 Files to deploy: index.html, manifest.json, service-worker.js, icon.svg, zip-sdi.txt

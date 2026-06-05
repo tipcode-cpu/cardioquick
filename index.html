@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#101216">
 <link rel="manifest" href="manifest.json">
 <meta http-equiv="x-ua-compatible" content="IE=edge">
-<title>CardioQuick Calculator PWA V7</title>
+<title>CardioQuick Calculator PWA V8</title>
 <style>
 :root {
   --bg:#101216; --card:#1c2028; --card2:#252a34; --text:#e8eaf0; --muted:#aab0bd;
@@ -96,7 +96,7 @@ th { background:var(--table-head-bg); color:var(--text); }
     }
 
   
-/* === V7 definitive theme/readability fix === */
+/* === V8 definitive theme/readability fix === */
 :root {
   color-scheme: dark;
   --bg:#101216;
@@ -238,7 +238,7 @@ tr.primaryRow *, .result tr.primaryRow * {
 }
 
 
-/* === V7 softer clinical button palette === */
+/* === V8 softer clinical button palette === */
 html[data-theme="light"] {
   --primary:#3b82f6;
   --primary-soft:#dbeafe;
@@ -272,6 +272,20 @@ button.copyBtn,
 button[onclick*="copy"] {
   background:var(--primary-soft) !important;
   color:var(--primary-soft-text) !important;
+}
+
+
+/* === V8 PREVENT copy-all cleanup === */
+.copyAllBtn {
+  margin-left:8px;
+  padding:4px 10px !important;
+  font-size:12px;
+  vertical-align:middle;
+}
+.prevent-grid button[onclick*="copyFrom"],
+.prevent-grid button.copySmall,
+.prevent-grid label + button {
+  display:none !important;
 }
 
 </style>
@@ -33014,7 +33028,7 @@ function clearAll() { location.reload(); }
   </div>
 
   <div class="card full">
-    <h2>5. AHA PREVENT Calculator</h2>
+    <h2>5. AHA PREVENT Calculator <button type="button" class="copyAllBtn" onclick="copyPreventInputsAll()">Copy all</button></h2>
     <div class="muted">Offline PREVENT implementation. HbA1c, UACR, and SDI are optional enhancers. ZIP code is automatically converted to SDI decile using the embedded Robert Graham Center ZCTA SDI_score dataset (2015–2019).</div>
     <div class="prevent-grid">
       <div><label>Age <button type="button" onclick="copyFromEGFRSexAge()" style="padding:2px 6px;width:auto;">copy</button></label><input id="prev-age" type="number"></div>
@@ -33142,6 +33156,73 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('./service-worker.js').catch(function(err) { console.log('Service worker registration failed:', err); });
   });
+}
+</script>
+
+
+<script>
+function getValSafe(id) {
+  var el = document.getElementById(id);
+  if (!el) return "";
+  return (el.value || "").toString().trim();
+}
+function getSelectTextSafe(id) {
+  var el = document.getElementById(id);
+  if (!el) return "";
+  if (el.options && el.selectedIndex >= 0) return el.options[el.selectedIndex].text;
+  return el.value || "";
+}
+function copyPreventInputsAll() {
+  var sex = "";
+  var male = document.getElementById("prev-m");
+  var female = document.getElementById("prev-f");
+  if (male && male.checked) sex = "Male";
+  if (female && female.checked) sex = "Female";
+
+  var lines = [];
+  function add(label, value, unit) {
+    if (value !== null && value !== undefined && String(value).trim() !== "") {
+      lines.push(label + ": " + String(value).trim() + (unit ? " " + unit : ""));
+    }
+  }
+
+  add("Age", getValSafe("prev-age"), "years");
+  add("Sex", sex, "");
+  add("SBP", getValSafe("prev-sbp"), "mmHg");
+  add("BP treatment", getSelectTextSafe("prev-htn"), "");
+  add("Statin use", getSelectTextSafe("prev-statin"), "");
+  add("Total-C", getValSafe("prev-tc"), "mg/dL");
+  add("HDL-C", getValSafe("prev-hdl"), "mg/dL");
+  add("Diabetes", getSelectTextSafe("prev-dm"), "");
+  add("Current smoking", getSelectTextSafe("prev-smoke"), "");
+  add("BMI", getValSafe("prev-bmi"), "kg/m²");
+  add("eGFR", getValSafe("prev-egfr"), "mL/min/1.73m²");
+  add("HbA1c", getValSafe("prev-hba1c"), "%");
+  add("UACR", getValSafe("prev-uacr"), "mg/g");
+  add("ZIP code", getValSafe("prev-zip"), "");
+  add("SDI decile", getValSafe("prev-sdi"), "");
+
+  var resultText = "";
+  var r = document.getElementById("prevent-result");
+  if (r && r.innerText && r.innerText.indexOf("Result will appear here") === -1) {
+    resultText = r.innerText.trim();
+  }
+
+  var txt = "AHA PREVENT inputs\n" + lines.join("\n");
+  if (resultText) txt += "\n\nAHA PREVENT result\n" + resultText;
+
+  if (typeof copyText === "function") {
+    copyText(txt);
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt);
+  } else {
+    var ta = document.createElement("textarea");
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  }
 }
 </script>
 

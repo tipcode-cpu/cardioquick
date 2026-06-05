@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cardioquick-pwa-v7-button-tone';
+const CACHE_NAME = 'cardioquick-pwa-v8-prevent-copyall';
 const ASSETS = ['./', './index.html', './manifest.json', './service-worker.js', './icon.svg'];
 
 self.addEventListener('install', event => {

@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#101216">
 <link rel="manifest" href="manifest.json">
 <meta http-equiv="x-ua-compatible" content="IE=edge">
-<title>CardioQuick Calculator PWA V8</title>
+<title>CardioQuick Calculator PWA V9</title>
 <style>
 :root {
   --bg:#101216; --card:#1c2028; --card2:#252a34; --text:#e8eaf0; --muted:#aab0bd;
@@ -96,7 +96,7 @@ th { background:var(--table-head-bg); color:var(--text); }
     }
 
   
-/* === V8 definitive theme/readability fix === */
+/* === V9 definitive theme/readability fix === */
 :root {
   color-scheme: dark;
   --bg:#101216;
@@ -238,7 +238,7 @@ tr.primaryRow *, .result tr.primaryRow * {
 }
 
 
-/* === V8 softer clinical button palette === */
+/* === V9 softer clinical button palette === */
 html[data-theme="light"] {
   --primary:#3b82f6;
   --primary-soft:#dbeafe;
@@ -275,7 +275,7 @@ button[onclick*="copy"] {
 }
 
 
-/* === V8 PREVENT copy-all cleanup === */
+/* === V9 PREVENT copy-all cleanup === */
 .copyAllBtn {
   margin-left:8px;
   padding:4px 10px !important;
@@ -286,6 +286,20 @@ button[onclick*="copy"] {
 .prevent-grid button.copySmall,
 .prevent-grid label + button {
   display:none !important;
+}
+
+
+/* === V9 PREVENT copy-all + individual copy buttons === */
+.copyAllBtn {
+  margin-left:8px;
+  padding:4px 10px !important;
+  font-size:12px;
+  vertical-align:middle;
+}
+.prevent-grid button[onclick*="copyFrom"],
+.prevent-grid button.copySmall,
+.prevent-grid label + button {
+  display:inline-block !important;
 }
 
 </style>
@@ -33160,68 +33174,103 @@ if ('serviceWorker' in navigator) {
 </script>
 
 
+
+
+
 <script>
-function getValSafe(id) {
-  var el = document.getElementById(id);
-  if (!el) return "";
-  return (el.value || "").toString().trim();
+function cqValue(ids) {
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el && el.value !== undefined && String(el.value).trim() !== "") return String(el.value).trim();
+  }
+  return "";
 }
-function getSelectTextSafe(id) {
-  var el = document.getElementById(id);
-  if (!el) return "";
-  if (el.options && el.selectedIndex >= 0) return el.options[el.selectedIndex].text;
-  return el.value || "";
+function cqSelectText(ids) {
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el) {
+      if (el.options && el.selectedIndex >= 0) return el.options[el.selectedIndex].text;
+      if (el.value !== undefined) return String(el.value).trim();
+    }
+  }
+  return "";
+}
+function cqRadioText(candidates) {
+  for (var i = 0; i < candidates.length; i++) {
+    var el = document.getElementById(candidates[i].id);
+    if (el && el.checked) return candidates[i].text;
+  }
+  return "";
+}
+function cqCopyText(txt) {
+  if (typeof copyText === "function") {
+    copyText(txt);
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt);
+    return;
+  }
+  if (window.clipboardData) {
+    window.clipboardData.setData("Text", txt);
+    return;
+  }
+  var ta = document.createElement("textarea");
+  ta.value = txt;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
 }
 function copyPreventInputsAll() {
-  var sex = "";
-  var male = document.getElementById("prev-m");
-  var female = document.getElementById("prev-f");
-  if (male && male.checked) sex = "Male";
-  if (female && female.checked) sex = "Female";
+  var sex = cqRadioText([
+    {id:"prev-m", text:"Male"},
+    {id:"prev-male", text:"Male"},
+    {id:"prev-f", text:"Female"},
+    {id:"prev-female", text:"Female"}
+  ]);
 
   var lines = [];
   function add(label, value, unit) {
-    if (value !== null && value !== undefined && String(value).trim() !== "") {
-      lines.push(label + ": " + String(value).trim() + (unit ? " " + unit : ""));
-    }
+    value = (value === null || value === undefined) ? "" : String(value).trim();
+    if (value !== "") lines.push(label + ": " + value + (unit ? " " + unit : ""));
   }
 
-  add("Age", getValSafe("prev-age"), "years");
+  add("Age", cqValue(["prev-age","pAge"]), "years");
   add("Sex", sex, "");
-  add("SBP", getValSafe("prev-sbp"), "mmHg");
-  add("BP treatment", getSelectTextSafe("prev-htn"), "");
-  add("Statin use", getSelectTextSafe("prev-statin"), "");
-  add("Total-C", getValSafe("prev-tc"), "mg/dL");
-  add("HDL-C", getValSafe("prev-hdl"), "mg/dL");
-  add("Diabetes", getSelectTextSafe("prev-dm"), "");
-  add("Current smoking", getSelectTextSafe("prev-smoke"), "");
-  add("BMI", getValSafe("prev-bmi"), "kg/m²");
-  add("eGFR", getValSafe("prev-egfr"), "mL/min/1.73m²");
-  add("HbA1c", getValSafe("prev-hba1c"), "%");
-  add("UACR", getValSafe("prev-uacr"), "mg/g");
-  add("ZIP code", getValSafe("prev-zip"), "");
-  add("SDI decile", getValSafe("prev-sdi"), "");
+  add("SBP", cqValue(["prev-sbp","pSbp"]), "mmHg");
+  add("BP treatment", cqSelectText(["prev-htn","prev-bptx","pBpTx"]), "");
+  add("Statin use", cqSelectText(["prev-statin","pStatin"]), "");
+  add("Total-C", cqValue(["prev-tc","pTc"]), "mg/dL");
+  add("HDL-C", cqValue(["prev-hdl","pHdl"]), "mg/dL");
+  add("Diabetes", cqSelectText(["prev-dm","pDm"]), "");
+  add("Current smoking", cqSelectText(["prev-smoke","pSmoke"]), "");
+  add("BMI", cqValue(["prev-bmi","pBmi"]), "kg/m²");
+  add("eGFR", cqValue(["prev-egfr","pEgfr"]), "mL/min/1.73m²");
+  add("HbA1c", cqValue(["prev-hba1c","pA1c"]), "%");
+  add("UACR", cqValue(["prev-uacr","pUacr"]), "mg/g");
+  add("ZIP code", cqValue(["prev-zip","pZip"]), "");
+  add("SDI decile", cqValue(["prev-sdi","pSdi"]), "");
 
   var resultText = "";
-  var r = document.getElementById("prevent-result");
+  var r = document.getElementById("prevent-result") || document.getElementById("preventResult");
   if (r && r.innerText && r.innerText.indexOf("Result will appear here") === -1) {
     resultText = r.innerText.trim();
   }
 
-  var txt = "AHA PREVENT inputs\n" + lines.join("\n");
+  var txt = "AHA PREVENT inputs";
+  if (lines.length) txt += "\n" + lines.join("\n");
+  else txt += "\nNo PREVENT input values entered.";
+
   if (resultText) txt += "\n\nAHA PREVENT result\n" + resultText;
 
-  if (typeof copyText === "function") {
-    copyText(txt);
-  } else if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(txt);
-  } else {
-    var ta = document.createElement("textarea");
-    ta.value = txt;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    document.body.removeChild(ta);
+  cqCopyText(txt);
+
+  var btns = document.getElementsByClassName("copyAllBtn");
+  for (var i = 0; i < btns.length; i++) {
+    var old = btns[i].innerHTML;
+    btns[i].innerHTML = "Copied";
+    (function(b, oldText){ setTimeout(function(){ b.innerHTML = oldText; }, 900); })(btns[i], old);
   }
 }
 </script>

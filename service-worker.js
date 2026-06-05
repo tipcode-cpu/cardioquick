@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cardioquick-pwa-v8-prevent-copyall';
+const CACHE_NAME = 'cardioquick-pwa-v9-copyfix';
 const ASSETS = ['./', './index.html', './manifest.json', './service-worker.js', './icon.svg'];
 
 self.addEventListener('install', event => {

@@ -1,623 +1,911 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101216">
-<title>고혈압 위험도 분류 · CardioQuick</title>
+<link rel="manifest" href="manifest.json">
+<meta http-equiv="x-ua-compatible" content="IE=edge">
+<title>CardioQuick Calculator PWA V8</title>
 <style>
-.ldl-copy-btn{font-size:.8em;padding:1px 8px;margin-left:2px;cursor:pointer;border:1px solid var(--line,#999);border-radius:4px;background:var(--card,#fff);color:inherit;vertical-align:middle;}
-.ldl-copy-btn:hover{filter:brightness(.95);}
-.ldl-copy-btn:active{transform:translateY(1px);}
 :root {
-  color-scheme: dark;
   --bg:#101216; --card:#1c2028; --card2:#252a34; --text:#e8eaf0; --muted:#aab0bd;
   --primary:#7cc7ff; --accent:#77e0b6; --warn:#ffcc66; --err:#ff8585; --border:#343b4a;
-  --field:var(--card2); --field-ink:var(--text);
-  --primary-soft:#1e3a5f; --primary-soft-border:#2b5f8f; --primary-soft-text:#e0f2fe; --clear:#dc2626;
-  --r-lowest:#7cba91; --r-low:#efce49; --r-mod:#e29744; --r-high:#b54d56;
-  --gl-head:#dcdddd; --gl-rowlab:#e6e6e6; --gl-ink:#1f2937;
-}
-html[data-theme="light"] {
-  color-scheme: light;
-  --bg:#f8fafc; --card:#ffffff; --card2:#f1f5f9; --text:#0f172a; --muted:#64748b;
-  --primary:#2563eb; --accent:#0f766e; --warn:#b45309; --err:#b91c1c; --border:#e2e8f0;
-  --field:#ffffff; --field-ink:#0f172a;
-  --primary-soft:#dbeafe; --primary-soft-border:#bfdbfe; --primary-soft-text:#1e3a8a; --clear:#dc2626;
-}
-html[data-theme="dark"] {
-  color-scheme: dark;
-  --bg:#101216; --card:#1c2028; --card2:#252a34; --text:#e8eaf0; --muted:#aab0bd;
-  --primary:#7cc7ff; --accent:#77e0b6; --warn:#ffcc66; --err:#ff8585; --border:#343b4a;
-  --field:var(--card2); --field-ink:var(--text);
-  --primary-soft:#1e3a5f; --primary-soft-border:#2b5f8f; --primary-soft-text:#e0f2fe; --clear:#dc2626;
 }
 * { box-sizing:border-box; }
-body { margin:0; padding:18px; background:var(--bg); color:var(--text); font-family:"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",Arial,sans-serif; font-size:14px; transition:background-color .12s ease,color .12s ease; }
+body { margin:0; padding:18px; background:var(--bg); color:var(--text); font-family:Segoe UI, Arial, sans-serif; font-size:14px; }
 h1 { margin:0 0 4px; font-size:24px; color:var(--primary); }
 .subtitle { color:var(--muted); margin-bottom:14px; }
 .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; max-width:1250px; margin:0 auto; }
-.card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; box-shadow:0 4px 12px rgba(0,0,0,.25); transition:background-color .12s ease,border-color .12s ease; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; box-shadow:0 4px 12px rgba(0,0,0,.25); }
 .full { grid-column:span 2; }
 h2 { font-size:17px; margin:0 0 12px; color:var(--primary); }
 .row { display:flex; align-items:center; gap:8px; margin:8px 0; flex-wrap:wrap; }
 label { color:var(--text); font-weight:500; }
-input, select { background:var(--field); color:var(--field-ink); border:1px solid var(--border); border-radius:6px; padding:7px 9px; width:100px; }
+input, select { background:var(--card2); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:7px 9px; width:105px; }
 input:focus, select:focus { outline:none; border-color:var(--primary); }
-button { background:var(--primary-soft); color:var(--primary-soft-text); border:1px solid var(--primary-soft-border); border-radius:7px; padding:8px 14px; font-weight:700; cursor:pointer; }
-button:hover { background:color-mix(in srgb, var(--primary-soft) 82%, var(--primary) 18%); }
-.clearBtn { width:auto; background:var(--clear); color:#fff; border:1px solid var(--clear); font-weight:bold; }
+button { background:var(--primary); color:#04121e; border:0; border-radius:7px; padding:8px 12px; font-weight:700; cursor:pointer; }
+button:hover { opacity:.86; }
+.clearBtn { width:auto; background:#d71920; color:white; font-weight:bold; border-radius:7px; padding:8px 12px; }
 .topClearWrap { position:fixed; top:10px; right:10px; z-index:9999; }
 .bottomActions { text-align:center; margin-top:12px; }
-.result { background:var(--card2); color:var(--text); border-left:4px solid var(--accent); border-radius:7px; padding:14px; margin-top:12px; line-height:1.6; }
+.result { background:var(--card2); color:var(--text); border-left:4px solid var(--accent); border-radius:7px; padding:12px; margin-top:12px; line-height:1.55; }
+.result * { color:var(--text); }
 .result .muted { color:var(--muted); }
+.result .warn { color:var(--warn); }
+.result .err { color:var(--err); }
+.warn { color:var(--warn); font-weight:600; margin-top:8px; white-space:pre-line; }
+.err { color:var(--err); font-weight:700; }
 .muted { color:var(--muted); font-size:12px; }
-.opt { font-size:11px; color:var(--muted); border:1px solid var(--border); border-radius:999px; padding:1px 8px; margin-left:6px; font-weight:600; }
-.req { font-size:11px; color:var(--accent); border:1px solid var(--accent); border-radius:999px; padding:1px 8px; margin-left:6px; font-weight:700; }
-.subhead { font-weight:700; color:var(--primary); margin:14px 0 4px; font-size:14px; border-top:1px solid var(--border); padding-top:12px; }
-.subhead:first-of-type { border-top:0; padding-top:0; }
-.auto-on { color:var(--warn); font-weight:700; }
-.factor-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; }
-.factor-grid > label.chk { display:flex; align-items:flex-start; gap:8px; font-weight:500; padding:6px 8px; border:1px solid var(--border); border-radius:8px; background:var(--card2); cursor:pointer; }
-.factor-grid > label.chk input { width:auto; margin-top:2px; }
-.factor-grid .def { color:var(--muted); font-size:12px; display:block; margin-top:2px; font-weight:400; }
 .pill { display:inline-block; border:1px solid var(--border); background:var(--card2); border-radius:999px; padding:6px 10px; margin-right:6px; cursor:pointer; }
 .pill input { width:auto; margin-right:4px; }
-.badge { display:inline-block; padding:6px 16px; border-radius:6px; font-weight:800; font-size:16px; color:var(--gl-ink); }
-.b-lowest { background:var(--r-lowest); }
-.b-low { background:var(--r-low); }
-.b-mod { background:var(--r-mod); }
-.b-high { background:var(--r-high); color:#fff; }
-.treat { margin-top:12px; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
-.treat .trow { display:grid; grid-template-columns:130px 1fr; border-top:1px solid var(--border); }
-.treat .trow:first-child { border-top:0; }
-.treat .tk { background:var(--card); font-weight:700; padding:10px 12px; color:var(--primary); }
-.treat .tv { padding:10px 12px; }
-.treat .bptarget { font-size:18px; font-weight:800; color:var(--accent); }
-.gl-cap { font-weight:700; margin:6px 0 0; color:var(--text); }
-.gl-table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; color:var(--gl-ink); }
-.gl-table th, .gl-table td { border:2px solid #fff; padding:9px 6px; text-align:center; vertical-align:middle; }
-.gl-table thead th { background:var(--gl-head); color:#222; font-weight:700; line-height:1.35; }
-.gl-table td.lab { background:var(--gl-rowlab); color:#222; text-align:center; font-weight:700; line-height:1.35; }
-.gl-table td.cellval { font-weight:700; }
-.gl-table td.c-lowest { background:var(--r-lowest); }
-.gl-table td.c-low { background:var(--r-low); }
-.gl-table td.c-mod { background:var(--r-mod); }
-.gl-table td.c-high { background:var(--r-high); color:#fff; }
-.gl-table td.c-low-mod { background:linear-gradient(100deg,var(--r-low) 0%,var(--r-low) 38%,var(--r-mod) 100%); }
-.gl-table td.c-mod-high { background:linear-gradient(100deg,var(--r-mod) 0%,var(--r-mod) 38%,var(--r-high) 100%); color:#fff; }
-.gl-table td.cell-on { box-shadow:inset 0 0 0 4px #111, inset 0 0 0 7px #fff; }
-.gl-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-size:12px; color:var(--text); }
-.gl-legend .sw { display:inline-block; width:16px; height:16px; border-radius:3px; vertical-align:-3px; margin-right:5px; }
-.footer { color:var(--muted); font-size:11px; margin-top:12px; line-height:1.5; }
-.themePanel { max-width:1250px; margin:18px auto 8px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
-.themePanel label { display:block; margin:0 0 8px; font-weight:700; }
-.themePanel select { width:220px; }
-.bpcat { font-weight:800; }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+th,td { border:1px solid var(--table-border); padding:8px; text-align:left; color:var(--text); }
+th { background:var(--table-head-bg); color:var(--text); }
+.primaryRow { background:var(--primary-row-bg); color:var(--primary-row-text); }
+.prevent-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+.prevent-grid div { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.prevent-grid input, .prevent-grid select { width:100%; min-width:0; max-width:100%; box-sizing:border-box; }
+.footer { color:var(--muted); font-size:11px; margin-top:12px; line-height:1.4; }
+
+    /* Theme-safe legacy result/detail blocks */
+    .result, .result * {
+      color: var(--ink);
+    }
+    .result table,
+    .ldl-table,
+    .detail-table {
+      background: var(--card);
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    .result th,
+    .result td,
+    .ldl-table th,
+    .ldl-table td,
+    .detail-table th,
+    .detail-table td {
+      background: var(--card);
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    .result th,
+    .ldl-table th,
+    .detail-table th {
+      background: var(--card2);
+      color: var(--ink);
+    }
+    .result tr:nth-child(even) td,
+    .ldl-table tr:nth-child(even) td,
+    .detail-table tr:nth-child(even) td {
+      background: color-mix(in srgb, var(--success-bg) 45%, var(--card));
+    }
+    .copybox,
+    input[readonly] {
+      background: var(--field);
+      color: var(--field-ink);
+      border: 1px solid var(--line);
+    }
+    .whitebox,
+    .panel-result,
+    .ldl-result,
+    .uacr-result {
+      background: var(--card2) !important;
+      color: var(--ink) !important;
+      border-color: var(--line) !important;
+    }
+
+  
+/* === V8 definitive theme/readability fix === */
+:root {
+  color-scheme: dark;
+  --bg:#101216;
+  --card:#1c2028;
+  --card2:#252a34;
+  --text:#e8eaf0;
+  --muted:#aab0bd;
+  --primary:#7cc7ff;
+  --accent:#77e0b6;
+  --warn:#ffcc66;
+  --err:#ff8585;
+  --border:#343b4a;
+  --table-head-bg:#252a34;
+  --table-border:#667085;
+  --primary-row-bg:#1f2937;
+  --primary-row-text:#f8fafc;
+  --field:var(--card2);
+  --field-ink:var(--text);
+  --ink:var(--text);
+  --line:var(--border);
+}
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --card2:#f1f5f9;
+  --text:#0f172a;
+  --muted:#64748b;
+  --primary:#2563eb;
+  --accent:#0f766e;
+  --warn:#b45309;
+  --err:#b91c1c;
+  --border:#e2e8f0;
+  --table-head-bg:#e8eef7;
+  --table-border:#cbd5e1;
+  --primary-row-bg:#ecfdf5;
+  --primary-row-text:#064e3b;
+  --field:#ffffff;
+  --field-ink:#0f172a;
+  --ink:var(--text);
+  --line:var(--border);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:#101216;
+  --card:#1c2028;
+  --card2:#252a34;
+  --text:#e8eaf0;
+  --muted:#aab0bd;
+  --primary:#7cc7ff;
+  --accent:#77e0b6;
+  --warn:#ffcc66;
+  --err:#ff8585;
+  --border:#343b4a;
+  --table-head-bg:#252a34;
+  --table-border:#667085;
+  --primary-row-bg:#1f2937;
+  --primary-row-text:#f8fafc;
+  --field:var(--card2);
+  --field-ink:var(--text);
+  --ink:var(--text);
+  --line:var(--border);
+}
+body, .card, input, select, .result, table, th, td {
+  transition: background-color .12s ease, color .12s ease, border-color .12s ease;
+}
+body {
+  background:var(--bg) !important;
+  color:var(--text) !important;
+}
+.card {
+  background:var(--card) !important;
+  border-color:var(--border) !important;
+}
+input, select {
+  background:var(--field) !important;
+  color:var(--field-ink) !important;
+  border-color:var(--border) !important;
+}
+.result {
+  background:var(--card2) !important;
+  color:var(--text) !important;
+  border-left-color:var(--accent) !important;
+}
+.result * {
+  color:var(--text) !important;
+}
+.result .muted, .result .muted * {
+  color:var(--muted) !important;
+}
+.result .warn, .result .warn * {
+  color:var(--warn) !important;
+}
+.result .err, .result .err * {
+  color:var(--err) !important;
+}
+.result input[readonly], #ldlCopyResult {
+  background:var(--card) !important;
+  color:var(--text) !important;
+  border:1px solid var(--border) !important;
+}
+table, .result table {
+  background:var(--card) !important;
+  color:var(--text) !important;
+}
+th, .result th {
+  background:var(--table-head-bg) !important;
+  color:var(--text) !important;
+  border-color:var(--table-border) !important;
+}
+td, .result td {
+  background:var(--card) !important;
+  color:var(--text) !important;
+  border-color:var(--table-border) !important;
+}
+tr.primaryRow, tr.primaryRow td,
+.result tr.primaryRow, .result tr.primaryRow td {
+  background:var(--primary-row-bg) !important;
+  color:var(--primary-row-text) !important;
+}
+tr.primaryRow *, .result tr.primaryRow * {
+  color:var(--primary-row-text) !important;
+}
+.themePanel {
+  max-width:1250px;
+  margin:18px auto 8px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px 16px;
+}
+.themePanel label {
+  display:block;
+  margin:0 0 8px;
+  font-weight:700;
+}
+.themePanel select {
+  width:220px;
+}
+
+
+/* === V8 softer clinical button palette === */
+html[data-theme="light"] {
+  --primary:#3b82f6;
+  --primary-soft:#dbeafe;
+  --primary-soft-border:#bfdbfe;
+  --primary-soft-text:#1e3a8a;
+  --clear:#dc2626;
+}
+html[data-theme="dark"] {
+  --primary:#7cc7ff;
+  --primary-soft:#1e3a5f;
+  --primary-soft-border:#2b5f8f;
+  --primary-soft-text:#e0f2fe;
+  --clear:#dc2626;
+}
+button {
+  background:var(--primary-soft) !important;
+  color:var(--primary-soft-text) !important;
+  border:1px solid var(--primary-soft-border) !important;
+  box-shadow:none !important;
+}
+button:hover {
+  filter:none !important;
+  background:color-mix(in srgb, var(--primary-soft) 82%, var(--primary) 18%) !important;
+}
+.clearBtn {
+  background:var(--clear) !important;
+  color:#ffffff !important;
+  border:1px solid var(--clear) !important;
+}
+button.copyBtn,
+button[onclick*="copy"] {
+  background:var(--primary-soft) !important;
+  color:var(--primary-soft-text) !important;
+}
+
+
+/* === V8 PREVENT copy-all cleanup === */
+.copyAllBtn {
+  margin-left:8px;
+  padding:4px 10px !important;
+  font-size:12px;
+  vertical-align:middle;
+}
+
 @media (max-width: 640px) {
   body { padding:14px; }
   .grid { grid-template-columns:1fr; gap:12px; }
   .full { grid-column:span 1; }
   h1 { font-size:22px; }
-  .factor-grid { grid-template-columns:1fr; }
-  .treat .trow { grid-template-columns:1fr; }
-  .gl-table { font-size:11px; }
-  .gl-table th,.gl-table td { padding:5px 3px; }
+  .row input, .row select { flex:1 1 auto; min-width:0; }
+  .prevent-grid { grid-template-columns:repeat(2,1fr); }
+  .prevent-grid input, .prevent-grid select { width:100%; min-width:0; }
+  .copyAllBtn { display:block; width:100%; margin:8px 0 0; }
 }
+
 </style>
+<script language="javascript">
+window.resizeTo(1180, 900);
+
+var PREVENT_FULL_10 = [[0.7716794, 0.7847578, 0.7023067, 0.7128741, 0.884209, 0.9095703], [0, 0, 0, 0, 0, 0], [0.0062109, 0.0534485, 0.0898765, 0.1465201, 0, 0], [-0.1547756, -0.0911282, -0.1407316, -0.1125794, 0, 0], [-0.1933123, -0.4921973, -0.0256648, -0.3387216, -0.421474, -0.6765184], [0.3071217, 0.2972415, 0.314511, 0.2980252, 0.3002919, 0.3111651], [0.496753, 0.4527054, 0.4799217, 0.399583, 0.6170359, 0.5535052], [0.466605, 0.3726641, 0.4062049, 0.3379111, 0.5380269, 0.4326811], [0, 0, 0, 0, -0.0191335, -0.0854286], [0, 0, 0, 0, 0.2764302, 0.3551736], [0.4780697, 0.3886854, 0.3847744, 0.2582604, 0.5975847, 0.5102245], [0.0529077, 0.0081661, 0.0495174, 0.0147769, 0.0654197, 0.015472], [0.3034892, 0.2508052, 0.2133861, 0.1686621, 0.3313614, 0.2570964], [-0.1556524, -0.1538484, -0.0678552, -0.1073619, 0, 0], [-0.0667026, -0.0474695, -0.0451416, -0.0381038, -0.1002304, -0.0591177], [0.1061825, 0.1415382, 0.0788187, 0.1034169, 0, 0], [-0.0742271, -0.0436455, -0.0535985, -0.0228755, 0, 0], [0.0288245, 0.0199549, 0.0291762, 0.0267453, 0, 0], [-0.0875188, -0.1022686, -0.0961839, -0.0897449, -0.0845363, -0.1219056], [-0.2267102, -0.1762507, -0.2001466, -0.1497464, -0.2989062, -0.2437577], [-0.0676125, -0.0715873, -0.0586472, -0.077206, -0.1111354, -0.105363], [0, 0, 0, 0, 0.0008104, 0.0037907], [-0.1493231, -0.1428668, -0.1537791, -0.1198368, -0.1666635, -0.1660207], [0.1361989, 0.0802431, 0.1413965, 0.0651121, 0.1213034, 0.1106372], [0.2261596, 0.275073, 0.228136, 0.2676683, 0.2314147, 0.3371204], [0.1804508, 0.144759, 0.1588908, 0.1388492, 0.1819138, 0.1694628], [0.1645922, 0.1772853, 0.1371824, 0.1375837, 0.1948135, 0.2164607], [0.0198413, 0.1095674, 0.0061613, 0.0652944, 0.0395368, 0.1702805], [0.1298513, 0.1165698, 0.123192, 0.101282, 0.176668, 0.148297], [0.1412555, 0.1048297, 0.1410572, 0.1092726, 0.1614911, 0.1234088], [-0.0031658, -0.0230072, 0.005866, -0.0112852, -0.0010583, -0.0234637], [-3.860385, -3.631387, -4.291503, -3.969788, -4.896524, -4.663513]];
+var PREVENT_FULL_30 = [[0.5073749, 0.4427595, 0.4386739, 0.3743566, 0.5927507, 0.5478829], [-0.0981751, -0.1064108, -0.0921956, -0.0995499, -0.1028754, -0.1111928], [0.0162303, 0.0629381, 0.0977728, 0.1544808, 0, 0], [-0.1617147, -0.1015427, -0.1453525, -0.1215297, 0, 0], [-0.1111241, -0.2542326, 0.0590925, -0.1083968, -0.3593781, -0.4547346], [0.282946, 0.2549679, 0.2862862, 0.2555179, 0.2628556, 0.2527602], [0.4004069, 0.333835, 0.3669136, 0.2696998, 0.5113472, 0.4385384], [0.2918701, 0.1873833, 0.2354695, 0.1628432, 0.347344, 0.2397952], [0, 0, 0, 0, 0.0564656, 0.0640931], [0, 0, 0, 0, 0.2363857, 0.2643081], [0.1017102, 0.0246102, 0.0354338, -0.077507, 0.1971295, 0.1354588], [0.0622643, 0.0552014, 0.0573093, 0.0583407, 0.0735227, 0.0570689], [0.2872416, 0.1979729, 0.1840085, 0.1120322, 0.3219386, 0.220666], [-0.0768135, -0.0407714, 0.0117504, -0.0025063, 0, 0], [-0.0557282, -0.0365522, -0.0331945, -0.0256116, -0.0880321, -0.0436769], [0.0917585, 0.1232822, 0.0664311, 0.0886745, 0, 0], [-0.0679131, -0.0441334, -0.0492826, -0.0254507, 0, 0], [0.029076, 0.0177865, 0.0288888, 0.0244639, 0, 0], [-0.0907755, -0.1046657, -0.0964709, -0.0869146, -0.0863132, -0.1168376], [-0.2702118, -0.2116113, -0.2279648, -0.165745, -0.3425359, -0.2730055], [-0.1373216, -0.1277905, -0.120405, -0.1244714, -0.181405, -0.1573691], [0, 0, 0, 0, 0.0031285, -0.0174998], [-0.1255864, -0.0955922, -0.1157635, -0.0624552, -0.1356989, -0.1128676], [0.1067741, 0.0256704, 0.1107632, 0.015675, 0.0847634, 0.057746], [0.1853138, 0.1887637, 0.1840367, 0.1864231, 0.18397, 0.2446441], [0.1567115, 0.089241, 0.1308962, 0.0845697, 0.1485802, 0.1076782], [0.1028065, 0.0894596, 0.0810739, 0.0560171, 0.1273306, 0.1233486], [-0.0006181, 0.0710124, -0.0147785, 0.0252244, 0.0167008, 0.1274796], [0.0925285, 0.0676202, 0.0794709, 0.0501422, 0.1378342, 0.0985062], [0.0975598, 0.063409, 0.1002615, 0.0722905, 0.1138832, 0.0804844], [0.0101713, 0.0038783, 0.017301, 0.0114945, 0.0138979, 0.0022806], [-1.748475, -1.504558, -2.314066, -1.985368, -2.642208, -2.425439]];
+
+
+
+var PREVENT_BASE_10 = [[0.7939329,0.7688528,0.719883,0.7099847,0.8998235,0.8972642],[0,0,0,0,0,0],[0.0305239,0.0736174,0.1176967,0.1658663,0,0],[-0.1606857,-0.0954431,-0.151185,-0.1144285,0,0],[-0.2394003,-0.4347345,-0.0835358,-0.2837212,-0.4559771,-0.6811466],[0.3600781,0.3362658,0.3592852,0.3239977,0.3576505,0.3634461],[0.8667604,0.7692857,0.8348585,0.7189597,1.038346,0.923776],[0.5360739,0.4386871,0.4831078,0.3956973,0.583916,0.5023736],[0,0,0,0,-0.0072294,-0.0485841],[0,0,0,0,0.2997706,0.3726929],[0.6045917,0.5378979,0.4864619,0.3690075,0.7451638,0.6926917],[0.0433769,0.0164827,0.0397779,0.0203619,0.0557087,0.0251827],[0.3151672,0.288879,0.2265309,0.2036522,0.3534442,0.2980922],[-0.1477655,-0.1337349,-0.0592374,-0.0865581,0,0],[-0.0663612,-0.0475924,-0.0395762,-0.0322916,-0.0981511,-0.0497731],[0.1197879,0.150273,0.0844423,0.114563,0,0],[-0.0819715,-0.0517874,-0.0567839,-0.0300005,0,0],[0.0306769,0.0191169,0.0325692,0.0232747,0,0],[-0.0946348,-0.1049477,-0.1035985,-0.0927024,-0.0946663,-0.1289201],[-0.27057,-0.2251948,-0.2417542,-0.2018525,-0.3581041,-0.3040924],[-0.078715,-0.0895067,-0.0791142,-0.0970527,-0.1159453,-0.1401688],[0,0,0,0,-0.003878,0.0068126],[-0.1637806,-0.1543702,-0.1671492,-0.1217081,-0.1884289,-0.1797778],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[-3.307728,-3.031168,-3.819975,-3.500655,-4.310409,-3.946391]];
+var PREVENT_BASE_30 = [[0.5503079,0.4627309,0.4669202,0.3994099,0.6254374,0.5681541],[-0.0928369,-0.0984281,-0.0893118,-0.0937484,-0.0983038,-0.1048388],[0.0409794,0.0836088,0.1256901,0.1744643,0,0],[-0.1663306,-0.1029824,-0.1542255,-0.120203,0,0],[-0.1628654,-0.2140352,-0.0018093,-0.0665117,-0.3919241,-0.4761564],[0.3299505,0.2904325,0.322949,0.2753037,0.3142295,0.30324],[0.6793894,0.5331276,0.6296707,0.4790257,0.8330787,0.6840338],[0.3196112,0.2141914,0.268292,0.1782635,0.3438651,0.2656273],[0,0,0,0,0.0594874,0.0833107],[0,0,0,0,0.2525536,0.26999],[0.1857101,0.1155556,0.100106,-0.0218789,0.2981642,0.2541805],[0.0553528,0.0603775,0.0499663,0.0602553,0.0667159,0.0638923],[0.2894,0.232714,0.1875292,0.1421182,0.333921,0.2583631],[-0.075688,-0.0272112,0.0152476,0.0135996,0,0],[-0.056367,-0.0384488,-0.0276123,-0.0218265,-0.0893177,-0.0391938],[0.1071019,0.134192,0.0736147,0.1013148,0,0],[-0.0751438,-0.0511759,-0.0521962,-0.0312619,0,0],[0.0301786,0.0165865,0.0316918,0.020673,0,0],[-0.0998776,-0.1101437,-0.1046101,-0.0920935,-0.0974299,-0.1269124],[-0.3206166,-0.2585943,-0.2727793,-0.2159947,-0.404855,-0.3273572],[-0.1607862,-0.1566406,-0.1530907,-0.1548811,-0.1982991,-0.2043019],[0,0,0,0,-0.0035619,-0.0182831],[-0.1450788,-0.1166776,-0.1299149,-0.0712547,-0.1564215,-0.1342618],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[-1.318827,-1.148204,-1.974074,-1.736444,-2.205379,-1.95751]];
+var PREVENT_HBA1C_10 = [[0.7858178,0.7699177,0.7111831,0.7064146,0.8997391,0.911787],[0,0,0,0,0,0],[0.0194438,0.0605093,0.106797,0.1532267,0,0],[-0.1521964,-0.0888525,-0.1425745,-0.1082166,0,0],[-0.2296681,-0.417713,-0.0736824,-0.2675288,-0.4422749,-0.6568071],[0.3465777,0.3288657,0.3480844,0.3173809,0.3378691,0.3524645],[0.5366241,0.4759471,0.5112951,0.432604,0.681284,0.5849752],[0.5411682,0.4385663,0.4880292,0.3958842,0.5886005,0.5014014],[0,0,0,0,-0.0148657,-0.0512352],[0,0,0,0,0.2958374,0.365294],[0.5931898,0.5334616,0.4754997,0.3665014,0.73447,0.6892219],[0.0472458,0.0206431,0.0438132,0.0250243,0.05926,0.0292377],[0.3158567,0.2917524,0.2259093,0.2061158,0.3543475,0.3038296],[-0.1535174,-0.1383313,-0.0648872,-0.0899988,0,0],[-0.0687752,-0.0482622,-0.0437645,-0.0334959,-0.1002139,-0.0515032],[0.1054746,0.1393796,0.0697082,0.1034168,0,0],[-0.0761119,-0.0463501,-0.0506382,-0.0255406,0,0],[0.0307469,0.0205926,0.0327475,0.0247538,0,0],[-0.0905966,-0.1037717,-0.0996442,-0.0917441,-0.0878765,-0.1262343],[-0.2241857,-0.1737697,-0.1924338,-0.1499195,-0.303684,-0.2449514],[-0.080186,-0.0915839,-0.0803539,-0.098089,-0.1178943,-0.1392217],[0,0,0,0,-0.008345,0.0009592],[-0.1667286,-0.1637039,-0.1682586,-0.1305231,-0.1912183,-0.1917105],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0.1338348,0.13159,0.1339055,0.1157161,0.1856442,0.1652857],[0.1622409,0.1295185,0.1596461,0.1288303,0.1833083,0.1505859],[-0.0142496,-0.0128373,0.0015678,-0.0010001,-0.0143112,-0.0113444],[-3.306162,-3.040901,-3.838746,-3.51835,-4.288225,-3.961954]];
+var PREVENT_HBA1C_30 = [[0.5343493,0.4519873,0.4555574,0.3883267,0.6210856,0.5703729],[-0.0952314,-0.101624,-0.0903501,-0.0958114,-0.1000972,-0.1084544],[0.0298124,0.0700456,0.1148321,0.1613374,0,0],[-0.1578451,-0.0968005,-0.1458754,-0.1144418,0,0],[-0.1504488,-0.1923527,0.0089323,-0.0474338,-0.3773697,-0.4471767],[0.3173368,0.2827043,0.3139029,0.2691281,0.295316,0.2910152],[0.4314738,0.3417152,0.386281,0.2859773,0.5681692,0.4507242],[0.3209399,0.2105272,0.2714309,0.1759553,0.3449139,0.259585],[0,0,0,0,0.0540094,0.0850676],[0,0,0,0,0.249767,0.2637222],[0.1771435,0.1113291,0.0930987,-0.0242898,0.2875781,0.2454706],[0.0582828,0.0640135,0.0532216,0.0644523,0.0692013,0.0675649],[0.2888947,0.2334248,0.1862181,0.142874,0.3334936,0.2611991],[-0.0795886,-0.0299421,0.0106964,0.0115062,0,0],[-0.0600438,-0.0393204,-0.0329713,-0.02333,-0.0922339,-0.0408908],[0.0920598,0.1228854,0.0583609,0.0899664,0,0],[-0.0696108,-0.0463737,-0.0463273,-0.0275478,0,0],[0.0308807,0.0184599,0.0324717,0.022573,0,0],[-0.0954051,-0.1085744,-0.1004777,-0.090802,-0.0907885,-0.1241051],[-0.2763408,-0.2208049,-0.2266944,-0.1771894,-0.3554646,-0.2849461],[-0.1623944,-0.1577978,-0.1541859,-0.1548847,-0.2008846,-0.2032308],[0,0,0,0,-0.0079611,-0.0239714],[-0.1430514,-0.1179375,-0.1286005,-0.0732754,-0.156803,-0.138301],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0.0940543,0.0768169,0.0875827,0.0591089,0.1448336,0.1101184],[0.1116486,0.0777295,0.1126417,0.0821158,0.1277838,0.0949198],[-0.0024798,0.0092204,0.0124356,0.0179755,-0.0022589,0.0084192],[-1.341059,-1.180767,-2.011533,-1.777708,-2.193553,-1.974999]];
+var PREVENT_UACR_10 = [[0.7969249,0.7768655,0.7201999,0.7141718,0.9145975,0.9111795],[0,0,0,0,0,0],[0.0256635,0.0659949,0.1135771,0.1602194,0,0],[-0.1588107,-0.0951111,-0.1493506,-0.1139086,0,0],[-0.2255701,-0.420667,-0.0726677,-0.2719456,-0.4441346,-0.6693649],[0.3396649,0.3120151,0.3436259,0.3058719,0.3260323,0.3290082],[0.8047515,0.698521,0.7773094,0.6600631,0.9611365,0.8377655],[0.5285338,0.4314669,0.4746662,0.3884022,0.5755787,0.4978917],[0,0,0,0,0.0008831,-0.042749],[0,0,0,0,0.2988964,0.3624165],[0.4803511,0.3841364,0.3824646,0.2466316,0.5915291,0.5075796],[0.0434472,0.009384,0.0394178,0.0151852,0.0556823,0.0137716],[0.2985207,0.2676494,0.2125182,0.186167,0.3314097,0.2739963],[-0.1497787,-0.1390966,-0.0603046,-0.0894395,0,0],[-0.0742889,-0.0579315,-0.0466053,-0.0411884,-0.1078596,-0.0645712],[0.106756,0.1383719,0.0733118,0.1058212,0,0],[-0.0778126,-0.0488332,-0.0534262,-0.028089,0,0],[0.0306768,0.0200406,0.0325689,0.0240427,0,0],[-0.0907168,-0.102454,-0.0999887,-0.0912325,-0.0875231,-0.1230039],[-0.2705122,-0.2236355,-0.2411762,-0.2004894,-0.356859,-0.3013297],[-0.0830564,-0.089485,-0.0826941,-0.096936,-0.1220248,-0.1410318],[0,0,0,0,-0.0053637,0.0021531],[-0.1389249,-0.1321848,-0.1444737,-0.1022867,-0.1610389,-0.1548018],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0.1793037,0.1887974,0.1501217,0.1510073,0.2197281,0.2306299],[0.0132073,0.0916979,0.0050257,0.0556,0.0326667,0.1472194],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[-3.738341,-3.510705,-4.174614,-3.85146,-4.841506,-4.556907]];
+var PREVENT_UACR_30 = [[0.5491768,0.464491,0.4629669,0.3995607,0.6319513,0.5750236],[-0.0937311,-0.0998895,-0.0902777,-0.094557,-0.1009284,-0.1062268],[0.0359847,0.0757606,0.1215214,0.1686692,0,0],[-0.1642965,-0.1031778,-0.1522069,-0.1202145,0,0],[-0.1483404,-0.1990714,0.0092679,-0.0555561,-0.3787175,-0.4633994],[0.313353,0.2715816,0.3113609,0.2633566,0.2863393,0.2742874],[0.6253766,0.4754637,0.581256,0.4362036,0.7631221,0.612208],[0.3147172,0.2069672,0.263167,0.1716233,0.3355843,0.2614987],[0,0,0,0,0.0677084,0.0895459],[0,0,0,0,0.2517238,0.2632424],[0.1094663,0.0331103,0.0391726,-0.0775282,0.1940067,0.1430472],[0.0550705,0.0540474,0.0492959,0.0561236,0.0664006,0.0535184],[0.2782433,0.2189911,0.1786178,0.1319331,0.3171436,0.0535184],[-0.0786239,-0.0331044,0.0131058,0.0102428,0,0],[-0.0628947,-0.04534,-0.0325135,-0.0269294,-0.0970661,-0.0498574],[0.093204,0.1214535,0.0617093,0.0920557,0,0],[-0.0710685,-0.0483995,-0.0489189,-0.0297021,0,0],[0.0306363,0.0178997,0.0321079,0.0217935,0,0],[-0.0951455,-0.1059324,-0.1003185,-0.0893347,-0.0896239,-0.1193827],[-0.3168231,-0.2492861,-0.2684574,-0.2081467,-0.400743,-0.316651],[-0.1636391,-0.1561543,-0.1547301,-0.1542716,-0.2042041,-0.2046122],[0,0,0,0,-0.0054699,-0.0216878],[-0.1265483,-0.1012429,-0.1130703,-0.0597254,-0.13602,-0.1165637],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0.1142251,0.1007571,0.0903471,0.0684872,0.1486028,0.1366452],[-0.0055863,0.0572456,-0.0145818,0.0193962,0.011608,0.1078355],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[-1.583738,-1.398727,-2.178888,-1.873449,-2.538952,-2.314872]];
+var PREVENT_SDI_10 = [[0.7754083,0.7756377,0.7028123,0.7150087,0.8819156,0.894179],[0,0,0,0,0,0],[0.0221756,0.0715325,0.1056078,0.1627339,0,0],[-0.1650828,-0.0976775,-0.1502263,-0.1194988,0,0],[-0.2180808,-0.5186614,-0.0488757,-0.363659,-0.4495491,-0.7067398],[0.3381188,0.3235653,0.3402681,0.3179476,0.3457405,0.350241],[0.8624372,0.7722496,0.838022,0.7156422,1.02632,0.9252453],[0.4663953,0.3761129,0.4064592,0.3404477,0.5371646,0.4364765],[0,0,0,0,-0.0168447,-0.0866297],[0,0,0,0,0.2805126,0.3706765],[0.5919004,0.5180893,0.4838394,0.3545754,0.7315223,0.6696768],[0.0516821,0.0118451,0.0480415,0.0157875,0.0651679,0.0237374],[0.3182166,0.2634094,0.2270648,0.1786233,0.3491487,0.2688352],[-0.1460816,-0.1455263,-0.0585626,-0.1018269,0,0],[-0.0574455,-0.0367013,-0.0349485,-0.028313,-0.0890335,-0.0434892],[0.1302287,0.1617785,0.1017299,0.1209467,0,0],[-0.083509,-0.0507669,-0.062389,-0.0285806,0,0],[0.0282181,0.0178356,0.0285106,0.0247348,0,0],[-0.0952647,-0.1059337,-0.1033711,-0.0919494,-0.0971028,-0.1297155],[-0.2718966,-0.2236755,-0.2477845,-0.1981491,-0.3528078,-0.299086],[-0.0641738,-0.0723216,-0.0544326,-0.0776891,-0.106216,-0.1079522],[0,0,0,0,0.0064998,0.0130483],[-0.1717026,-0.1548205,-0.1735372,-0.1284899,-0.1899413,-0.1797791],[0.1442776,0.0889119,0.1473705,0.0728242,0.1343318,0.1235632],[0.2421409,0.291897,0.2451878,0.2824453,0.2496522,0.3592212],[0.1885076,0.1508151,0.1691593,0.1437348,0.1915023,0.17924],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[-3.461564,-3.159572,-3.955898,-3.624712,-4.409382,-4.058977]];
+var PREVENT_SDI_30 = [[0.5124233,0.437377,0.4396545,0.3749788,0.5919097,0.5387527],[-0.0978159,-0.104443,-0.0918489,-0.0990063,-0.1023133,-0.1090333],[0.0322131,0.0812573,0.1132729,0.1708505,0,0],[-0.1717884,-0.1069199,-0.1544977,-0.1272841,0,0],[-0.1364536,-0.2786727,0.036315,-0.1275555,-0.3864727,-0.4829094],[0.3074443,0.2729256,0.3049229,0.2659339,0.301876,0.2843569],[0.6709275,0.5279006,0.6344794,0.4676531,0.8162909,0.6827667],[0.2897728,0.1878949,0.234514,0.1610104,0.3449647,0.2406677],[0,0,0,0,0.0574975,0.0618028],[0,0,0,0,0.2367826,0.2705615],[0.1670658,0.0866569,0.0898312,-0.0465144,0.2790347,0.2255837],[0.0618439,0.0594948,0.0564502,0.0596996,0.0742645,0.0653632],[0.2969806,0.2028246,0.1933487,0.1147096,0.3352935,0.2263243],[-0.0665514,-0.0308404,0.0220467,0.0052906,0,0],[-0.0458917,-0.0283679,-0.0229229,-0.0186687,-0.0772532,-0.0316851],[0.1168505,0.1439353,0.0903326,0.1063151,0,0],[-0.0770419,-0.0510854,-0.0579383,-0.0307797,0,0],[0.027634,0.0150236,0.0274011,0.0218126,0,0],[-0.0992045,-0.1095448,-0.1039749,-0.0898242,-0.0995144,-0.1258716],[-0.3208137,-0.2561109,-0.2785102,-0.210054,-0.4000423,-0.3243709],[-0.134847,-0.1282945,-0.1167267,-0.1246327,-0.1770335,-0.1596172],[0,0,0,0,0.0083046,-0.0103092],[-0.1399842,-0.1011023,-0.1269382,-0.0629358,-0.149585,-0.1204785],[0.1129725,0.0314626,0.1149139,0.0199201,0.0960646,0.0680528],[0.1975843,0.2003953,0.1976537,0.194949,0.1987543,0.2619865],[0.1627381,0.0927451,0.1391241,0.0863835,0.1562214,0.1151424],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[-1.493211,-1.251031,-2.116951,-1.836632,-2.317899,-2.060187]];
+
+var OUTCOMES = [
+  {key:"cvd", label:"Total CVD", femaleCol:0, maleCol:1},
+  {key:"ascvd", label:"ASCVD", femaleCol:2, maleCol:3},
+  {key:"hf", label:"Heart failure", femaleCol:4, maleCol:5}
+];
+
+var martinTable = [
+  { min: 0, max: 49, factors: [3.5, 3.4, 3.3, 3.3, 3.2, 3.1] },
+  { min: 50, max: 56, factors: [4.0, 3.9, 3.7, 3.6, 3.6, 3.4] },
+  { min: 57, max: 61, factors: [4.3, 4.1, 4.0, 3.9, 3.8, 3.6] },
+  { min: 62, max: 66, factors: [4.5, 4.3, 4.1, 4.0, 3.9, 3.9] },
+  { min: 67, max: 71, factors: [4.7, 4.4, 4.3, 4.2, 4.1, 3.9] },
+  { min: 72, max: 75, factors: [4.8, 4.6, 4.4, 4.2, 4.2, 4.1] },
+  { min: 76, max: 79, factors: [4.9, 4.6, 4.5, 4.3, 4.3, 4.2] },
+  { min: 80, max: 83, factors: [5.0, 4.8, 4.6, 4.4, 4.3, 4.2] },
+  { min: 84, max: 87, factors: [5.1, 4.8, 4.6, 4.5, 4.4, 4.3] },
+  { min: 88, max: 92, factors: [5.2, 4.9, 4.7, 4.6, 4.4, 4.3] },
+  { min: 93, max: 96, factors: [5.3, 5.0, 4.8, 4.7, 4.5, 4.4] },
+  { min: 97, max: 100, factors: [5.4, 5.1, 4.8, 4.7, 4.5, 4.3] },
+  { min: 101, max: 105, factors: [5.5, 5.2, 5.0, 4.7, 4.6, 4.5] },
+  { min: 106, max: 110, factors: [5.6, 5.3, 5.0, 4.8, 4.6, 4.5] },
+  { min: 111, max: 115, factors: [5.7, 5.4, 5.1, 4.9, 4.7, 4.5] },
+  { min: 116, max: 120, factors: [5.8, 5.5, 5.2, 5.0, 4.8, 4.6] },
+  { min: 121, max: 126, factors: [6.0, 5.5, 5.3, 5.0, 4.8, 4.6] },
+  { min: 127, max: 132, factors: [6.1, 5.7, 5.3, 5.1, 4.9, 4.7] },
+  { min: 133, max: 138, factors: [6.2, 5.8, 5.4, 5.2, 5.0, 4.7] },
+  { min: 139, max: 146, factors: [6.3, 5.9, 5.6, 5.3, 5.0, 4.8] },
+  { min: 147, max: 154, factors: [6.5, 6.0, 5.7, 5.4, 5.1, 4.8] },
+  { min: 155, max: 163, factors: [6.7, 6.2, 5.8, 5.4, 5.2, 4.9] },
+  { min: 164, max: 173, factors: [6.8, 6.3, 5.9, 5.5, 5.3, 5.0] },
+  { min: 174, max: 185, factors: [7.0, 6.5, 6.0, 5.7, 5.4, 5.1] },
+  { min: 186, max: 201, factors: [7.3, 6.7, 6.2, 5.8, 5.5, 5.2] },
+  { min: 202, max: 220, factors: [7.6, 6.9, 6.4, 6.0, 5.6, 5.3] },
+  { min: 221, max: 247, factors: [8.0, 7.2, 6.6, 6.2, 5.9, 5.4] },
+  { min: 248, max: 292, factors: [8.5, 7.6, 7.0, 6.5, 6.1, 5.6] },
+  { min: 293, max: 399, factors: [9.5, 8.3, 7.5, 7.0, 6.5, 5.9] },
+  { min: 400, max: 99999, factors: [11.9, 10.0, 8.8, 8.1, 7.5, 6.7] }
+];
+
+function num(id) {
+  var v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? NaN : v;
+}
+function yn(id) { return parseInt(document.getElementById(id).value, 10); }
+function fmt(x, d) { return (isNaN(x) ? "N/A" : x.toFixed(d)); }
+function pct(x) { return fmt(100*x, 1) + "%"; }
+function handleEnter(e, fn) { e = e || window.event; if (e.keyCode === 13 || e.key === 'Enter') fn(); }
+
+function calcBMI() {
+  var h=num("bmi-h"), w=num("bmi-w");
+  if(!h || !w || h<=0 || w<=0) { alert("Enter valid height and weight."); return; }
+  var bmi=w/Math.pow(h/100,2), cat="";
+  if(bmi<18.5) cat="Underweight"; else if(bmi<23) cat="Normal"; else if(bmi<25) cat="Overweight"; else if(bmi<30) cat="Obese"; else cat="Severely obese";
+  document.getElementById("bmi-result").innerHTML="<b>BMI:</b> "+fmt(bmi,1)+" kg/m²<br><b>Category:</b> "+cat;
+}
+
+function calcEGFR() {
+  var age=num("egfr-age"), cr=num("egfr-cr"), sex=document.getElementById("egfr-f").checked?"F":"M";
+  if(!age || !cr || age<=0 || cr<=0) { alert("Enter valid age and serum creatinine."); return; }
+  var k=sex==="F"?0.7:0.9, a=sex==="F"?-0.241:-0.302, sf=sex==="F"?1.012:1.0;
+  var ratio=cr/k;
+  var egfr=142*Math.pow(Math.min(ratio,1),a)*Math.pow(Math.max(ratio,1),-1.2)*Math.pow(0.9938,age)*sf;
+  var st=egfr>=90?"G1":egfr>=60?"G2":egfr>=45?"G3a":egfr>=30?"G3b":egfr>=15?"G4":"G5";
+  document.getElementById("egfr-result").innerHTML="<b>eGFR:</b> "+fmt(egfr,1)+" mL/min/1.73m²<br><b>CKD stage:</b> "+st+"<br><span class='muted'>CKD-EPI creatinine equation 2021, race-free</span>";
+}
+
+
+function calcUACR() {
+  var alb = num("uacr-alb"), cr = num("uacr-cr");
+  var albUnit = document.getElementById("uacr-alb-unit").value;
+  var crUnit = document.getElementById("uacr-cr-unit").value;
+  if(isNaN(alb) || isNaN(cr) || alb < 0 || cr <= 0) { alert("Enter valid urine albumin and urine creatinine values."); return; }
+
+  // Convert urine albumin to mg/dL
+  var albMgDl = alb;
+  if(albUnit === "mgL") albMgDl = alb / 10.0;
+  if(albUnit === "ugmL") albMgDl = alb / 10.0; // 1 ug/mL = 1 mg/L = 0.1 mg/dL
+
+  // Convert urine creatinine to g/dL
+  var crGDl = cr / 1000.0; // mg/dL -> g/dL
+  if(crUnit === "gL") crGDl = cr / 10.0;
+  if(crUnit === "mmolL") crGDl = cr * 0.11312 / 10.0; // mmol/L -> g/L -> g/dL
+
+  var uacr = albMgDl / crGDl;
+  var cat = uacr < 30 ? "A1: normal to mildly increased" : (uacr <= 300 ? "A2: moderately increased" : "A3: severely increased");
+  var note = "UACR = urine albumin / urine creatinine, reported as mg/g creatinine.";
+  document.getElementById("uacr-result").innerHTML = "<b>UACR:</b> "+fmt(uacr,1)+" mg/g creatinine<br><b>Albuminuria category:</b> "+cat+"<br><span class='muted'>"+note+"</span>";
+}
+
+function getMartinFactor(tg, nonHdl) {
+  var c = nonHdl < 100 ? 0 : nonHdl <= 129 ? 1 : nonHdl <= 159 ? 2 : nonHdl <= 189 ? 3 : nonHdl <= 219 ? 4 : 5;
+  for(var i=0;i<martinTable.length;i++) if(tg>=martinTable[i].min && tg<=martinTable[i].max) return martinTable[i].factors[c];
+  return martinTable[martinTable.length-1].factors[c];
+}
+
+function calcLDL() {
+  var tc=num("ldl-tc"), hdl=num("ldl-hdl"), tg=num("ldl-tg");
+  if(!tc || !hdl || isNaN(tg) || tc<=0 || hdl<=0 || tg<0 || tc<=hdl) { alert("Enter valid lipid values in mg/dL."); return; }
+  var nonHdl=tc-hdl;
+  var fried=nonHdl - tg/5;
+  var factor=getMartinFactor(tg, nonHdl);
+  var martin=nonHdl - tg/factor;
+  var sampson=tc/0.948 - hdl/0.971 - (tg/8.56 + (tg*nonHdl)/2140 - (tg*tg)/16100) - 9.44;
+  var rec = (tg>800) ? "Direct LDL-C / apoB preferred when TG >800 mg/dL" : "Sampson/NIH is a robust default estimate; compare with Martin-Hopkins at low LDL-C.";
+  var warn=[];
+  if(tg>=400) warn.push("TG ≥400 mg/dL: Friedewald is unreliable.");
+  if(tg>800) warn.push("TG >800 mg/dL: calculated LDL-C should be interpreted very cautiously.");
+  if(tg>=150 && Math.min(sampson, martin)<70) warn.push("Elevated TG with LDL-C <70 mg/dL: Friedewald may underestimate LDL-C.");
+  var ldlSummary = "LDL-C " + fmt(sampson,1) + " mg/dL (Sampson/NIH)";
+  document.getElementById("ldl-result").innerHTML =
+    "<b>"+rec+"</b>"+
+    "<div style='margin:8px 0;'><input id='ldlCopyResult' type='text' readonly value='" + ldlSummary + "' style='width:310px;font-weight:bold;'> <button onclick='copyLDLSummary()'>Copy LDL-C</button></div>"+
+    "<table><tr><th>Method</th><th>LDL-C</th><th>Details</th></tr>"+
+    "<tr class='primaryRow'><td>Sampson/NIH</td><td>"+fmt(sampson,1)+" mg/dL</td><td>TC/0.948 − HDL/0.971 − [TG/8.56 + TG×non-HDL/2140 − TG²/16100] − 9.44</td></tr>"+
+    "<tr class='primaryRow'><td>Martin-Hopkins</td><td>"+fmt(martin,1)+" mg/dL</td><td>Adjustable TG divisor = "+factor+"</td></tr>"+
+    "<tr><td>Friedewald</td><td>"+fmt(fried,1)+" mg/dL</td><td>Reference only; TG/5</td></tr>"+
+    "<tr><td>non-HDL-C</td><td colspan='2'>"+fmt(nonHdl,1)+" mg/dL</td></tr></table>"+
+    (warn.length ? "<div class='warn'>"+warn.join("\n")+"</div>" : "");
+}
+
+function preventTerms() {
+  var age=num("prev-age"), sbp=num("prev-sbp"), tc=num("prev-tc"), hdl=num("prev-hdl"), egfr=num("prev-egfr"), bmi=num("prev-bmi");
+  var hba1c=num("prev-hba1c"), uacr=num("prev-uacr"), sdi=num("prev-sdi");
+  var dm=yn("prev-dm"), smoke=yn("prev-smoke"), bp=yn("prev-htn"), stat=yn("prev-statin");
+  if(age<30 || age>79 || isNaN(age)) throw "Age must be 30–79.";
+  if(sbp<90 || sbp>200 || isNaN(sbp)) throw "SBP must be 90–200 mmHg.";
+  if(tc<130 || tc>320 || isNaN(tc)) throw "Recommended derivation range: Total cholesterol 130–320 mg/dL. Calculation will still proceed..";
+  if(hdl<20 || hdl>100 || isNaN(hdl)) throw "HDL-C should be 20–100 mg/dL.";
+  if(egfr<15 || egfr>140 || isNaN(egfr)) throw "eGFR should be 15–140 mL/min/1.73m².";
+  if(bmi<18.5 || bmi>39.9 || isNaN(bmi)) throw "BMI should be 18.5–39.9 kg/m².";
+  // Optional PREVENT enhancers:
+  // HbA1c, UACR, and SDI may be left blank. Missing-indicator terms are used.
+  var hasHba1c = !(isNaN(hba1c) || hba1c === 0);
+  var hasUacr = !(isNaN(uacr) || uacr === 0);
+  var hasSdi = !(isNaN(sdi) || sdi === 0);
+
+  if(hasHba1c && (hba1c < 4.5 || hba1c > 15)) throw "HbA1c should be 4.5–15%, or leave it blank.";
+  if(hasUacr && (uacr < 0.1 || uacr > 25000)) throw "UACR should be 0.1–25000 mg/g, or leave it blank.";
+  if(hasSdi && (sdi < 1 || sdi > 10)) throw "SDI should be entered as decile 1–10, or leave it blank.";
+
+  var a=(age-55)/10;
+  var nonhdl=(tc-hdl)*0.02586 - 3.5;
+  var hdlterm=(hdl*0.02586 - 1.3)/0.3;
+  var sbplt=(Math.min(sbp,110)-110)/20;
+  var sbpgte=(Math.max(sbp,110)-130)/20;
+  var bmilt=(Math.min(bmi,30)-25)/5;
+  var bmigte=(Math.max(bmi,30)-30)/5;
+  var egfrlt=(Math.min(egfr,60)-60)/-15;
+  var egfrgte=(Math.max(egfr,60)-90)/-15;
+
+  var sdi46 = hasSdi && sdi>=4 && sdi<=6 ? 1 : 0;
+  var sdi710 = hasSdi && sdi>=7 && sdi<=10 ? 1 : 0;
+  var missSdi = hasSdi ? 0 : 1;
+
+  var missUacr = hasUacr ? 0 : 1;
+  var lnUacr = hasUacr ? Math.log(uacr) : 0;
+
+  var missHba1c = hasHba1c ? 0 : 1;
+  var hba1cDm = (hasHba1c && dm===1) ? hba1c-5.3 : 0;
+  var hba1cNoDm = (hasHba1c && dm===0) ? hba1c-5.3 : 0;
+
+  return [
+    a, a*a, nonhdl, hdlterm, sbplt, sbpgte, dm, smoke, bmilt, bmigte, egfrlt, egfrgte,
+    bp, stat, bp*sbpgte, stat*nonhdl, a*nonhdl, a*hdlterm, a*sbpgte, a*dm, a*smoke,
+    a*bmigte, a*egfrlt, sdi46, sdi710, missSdi, lnUacr, missUacr, hba1cDm, hba1cNoDm, missHba1c, 1
+  ];
+}
+
+function logistic(lp) { return Math.exp(lp)/(1+Math.exp(lp)); }
+function runPrevent(coefsRows, sex, outcome) {
+  var terms=preventTerms();
+  var col = sex==="F" ? outcome.femaleCol : outcome.maleCol;
+  var lp=0;
+  for(var i=0;i<32;i++) lp += coefsRows[i][col] * terms[i];
+  return logistic(lp);
+}
+
+
+function getPreventModel() {
+  var hba1c = num("prev-hba1c"), uacr = num("prev-uacr"), sdi = num("prev-sdi");
+  var hasHba1c = !(isNaN(hba1c) || hba1c === 0);
+  var hasUacr = !(isNaN(uacr) || uacr === 0);
+  var hasSdi = !(isNaN(sdi) || sdi === 0);
+  var n = (hasHba1c?1:0) + (hasUacr?1:0) + (hasSdi?1:0);
+  if(n === 0) return {key:"base", label:"Base model", c10:PREVENT_BASE_10, c30:PREVENT_BASE_30};
+  if(n >= 2) return {key:"full", label:"Full model", c10:PREVENT_FULL_10, c30:PREVENT_FULL_30};
+  if(hasHba1c) return {key:"hba1c", label:"Enhanced model: HbA1c", c10:PREVENT_HBA1C_10, c30:PREVENT_HBA1C_30};
+  if(hasUacr) return {key:"uacr", label:"Enhanced model: UACR", c10:PREVENT_UACR_10, c30:PREVENT_UACR_30};
+  return {key:"sdi", label:"Enhanced model: SDI", c10:PREVENT_SDI_10, c30:PREVENT_SDI_30};
+}
+
+function calcPREVENT() {
+  try {
+    var sex = document.getElementById("prev-f").checked ? "F" : "M";
+    var model = getPreventModel();
+    var html="<table><tr><th>Endpoint</th><th>10-year risk</th><th>30-year risk</th></tr>";
+    for(var i=0;i<OUTCOMES.length;i++) {
+      var o=OUTCOMES[i];
+      html += "<tr class='primaryRow'><td>"+o.label+"</td><td>"+pct(runPrevent(model.c10, sex, o))+"</td><td>"+pct(runPrevent(model.c30, sex, o))+"</td></tr>";
+    }
+    html += "</table><div style='color:#444444;'><b>Model used:</b> "+model.label+". Rule: no optional variable → base; exactly one optional variable → that enhanced model; two or more optional variables → full model with missing-indicator terms as needed. Outputs available here: Total CVD, ASCVD, and heart failure. CHD/stroke subtype coefficients are not included in this offline build.</div>";
+    var age=num("prev-age");
+    if(age>=60) html += "<div style='color:#9a4a00;font-weight:700;'>Note: 30-year risk is less reliable/less emphasized for ages 60–79; 10-year risk is usually the main estimate.</div>";
+    document.getElementById("prevent-result").innerHTML=html;
+  } catch(e) {
+    document.getElementById("prevent-result").innerHTML="<span class='err'>"+e+"</span>";
+  }
+}
+
+function copyFromBMI() {
+  var h=num("bmi-h"), w=num("bmi-w");
+  if(h && w) document.getElementById("prev-bmi").value=(w/Math.pow(h/100,2)).toFixed(1);
+}
+function copyFromEGFR() {
+  var txt=document.getElementById("egfr-result").innerText;
+  var m=txt.match(/eGFR:\s*([0-9.]+)/);
+  if(m) document.getElementById("prev-egfr").value=m[1];
+}
+
+function copyFromUACR() {
+  var txt=document.getElementById("uacr-result").innerText;
+  var m=txt.match(/UACR:\s*([0-9.]+)/);
+  if(m) document.getElementById("prev-uacr").value=m[1];
+}
+
+function copyFromLipids() {
+  var tc = parseFloat(document.getElementById("ldl-tc").value);
+  var hdl = parseFloat(document.getElementById("ldl-hdl").value);
+
+  if (!isNaN(tc)) {
+    document.getElementById("prev-tc").value = tc;
+  }
+  if (!isNaN(hdl)) {
+    document.getElementById("prev-hdl").value = hdl;
+  }
+}
+
+
+function copyFromEGFRSexAge() {
+  var age = parseFloat(document.getElementById("egfr-age").value);
+
+  if (!isNaN(age)) {
+    document.getElementById("prev-age").value = age;
+  }
+
+  if (document.getElementById("egfr-f").checked) {
+    document.getElementById("prev-f").checked = true;
+  } else {
+    document.getElementById("prev-m").checked = true;
+  }
+}
+
+function copyLDLSummary() {
+  var el = document.getElementById("ldlCopyResult");
+  if (!el) return;
+  el.select();
+  document.execCommand("copy");
+}
+
+function deriveSDIFromZip() {
+  var zipEl = document.getElementById("prev-zip");
+  var sdiEl = document.getElementById("prev-sdi");
+  var msgEl = document.getElementById("zip-sdi-msg");
+  if(!zipEl || !sdiEl) return;
+
+  var zip = zipEl.value.replace(/[^0-9]/g, "");
+  zipEl.value = zip;
+  sdiEl.value = "";
+  if(msgEl) msgEl.innerHTML = "";
+
+  if(zip === "") return;
+
+  if(zip.length !== 5) {
+    if(msgEl) msgEl.innerHTML = "Enter a 5-digit US ZIP/ZCTA code.";
+    return;
+  }
+
+  // Lookup table loaded lazily; if not ready yet, fetch then retry once.
+  if(SDI_PACKED === null) {
+    if(msgEl) msgEl.innerHTML = "Loading SDI lookup table\u2026";
+    loadSdiPacked().then(function(){ deriveSDIFromZip(); });
+    return;
+  }
+
+  var decile = sdiDecileFromZip(zip);
+  if(decile) {
+    sdiEl.value = decile;
+    if(msgEl) msgEl.innerHTML = "SDI decile " + decile + " applied from ZIP/ZCTA " + zip + ".";
+  } else {
+    if(msgEl) msgEl.innerHTML = "ZIP/ZCTA not found in the embedded SDI lookup table; SDI left blank.";
+  }
+}
+
+/*
+ZIP_SDI_DECILE maps 5-digit ZCTA/ZIP to SDI decile (1–10), derived from Robert Graham Center SDI_score with zero-padded ZCTA5_FIPS:
+  decile = ceil(SDI_score / 10), bounded to 1–10.
+To embed the complete official table, paste entries into this object, e.g. "01001":4.
+*/
+// SDI ZIP lookup: packed string loaded lazily from zip-sdi.txt
+// Each char = 1 ZIP slot starting at SDI_ZIP_LO; '0' = not found, 'A' = decile 10.
+var SDI_ZIP_LO = 1001;
+var SDI_PACKED = null;
+var SDI_PACKED_PROMISE = null;
+function loadSdiPacked() {
+  if (SDI_PACKED_PROMISE) return SDI_PACKED_PROMISE;
+  SDI_PACKED_PROMISE = fetch('./zip-sdi.txt')
+    .then(function(r){ return r.ok ? r.text() : ''; })
+    .then(function(t){ SDI_PACKED = t; return t; })
+    .catch(function(){ SDI_PACKED = ''; return ''; });
+  return SDI_PACKED_PROMISE;
+}
+function sdiDecileFromZip(zip) {
+  if (!SDI_PACKED) return undefined;
+  var i = parseInt(zip, 10) - SDI_ZIP_LO;
+  if (i < 0 || i >= SDI_PACKED.length) return undefined;
+  var c = SDI_PACKED.charAt(i);
+  if (c === '0') return undefined;
+  return c === 'A' ? 10 : parseInt(c, 10);
+}
+
+function clearAll() { location.reload(); }
+</script>
+
 <script>
-(function initThemeEarly(){
+(function initCardioQuickThemeEarly(){
   try {
     var saved = localStorage.getItem('cardioquick-theme');
     var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
-  } catch(e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+  } catch(e) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
 })();
 </script>
+
 </head>
 <body>
-<div class="topClearWrap"><button class="clearBtn" onclick="clearAll()">전체 지우기</button></div>
+<div class="topClearWrap"><button id="topClearAll" class="clearBtn" onclick="clearAll()">Clear all</button></div>
 <div class="grid">
-
   <div class="full">
-    <h1>고혈압 심뇌혈관 위험도 분류</h1>
-    <div class="subtitle">대한고혈압학회 2026 진료지침 · 표 10 위험인자 / 표 11 위험도 분류 / 표 13 목표 혈압 · 의료진용</div>
+    <h1>Cardio Quick Calculator</h1>
+    <div class="subtitle">BMI · eGFR · UACR · LDL-C · PREVENT Auto Model Selection</div>
   </div>
 
-  <!-- 1. 수치 입력 (통합) -->
-  <div class="card full">
-    <h2>1. 수치 입력</h2>
-    <div class="muted" style="margin-bottom:8px;">성별·나이·혈압은 분류에 필요합니다. 나머지 검사 수치는 <b>선택 입력</b>이며, 입력하면 자동 계산되어 위험인자에 반영됩니다.</div>
-
-    <div class="subhead">기본 정보 <span class="req">필수</span></div>
-    <div class="row">
-      <label>성별</label>
-      <label class="pill"><input type="radio" id="sex-m" name="sex" checked onchange="calc()">남성</label>
-      <label class="pill"><input type="radio" id="sex-f" name="sex" onchange="calc()">여성</label>
-      <label style="margin-left:10px;">나이</label><input id="age" type="number" oninput="calc()"> 세
-      <span class="muted">남 ≥45 / 여 ≥55 → 1개, ≥65 → 2개</span>
-    </div>
-
-    <div class="subhead">혈압 <span class="req">필수</span></div>
-    <div class="row">
-      <label>수축기(SBP)</label><input id="sbp" type="number" oninput="calc()"> mmHg
-      <label>이완기(DBP)</label><input id="dbp" type="number" oninput="calc()"> mmHg
-    </div>
-    <div id="bp-result" class="result">혈압을 입력하세요.</div>
-
-    <div class="subhead">체질량지수 (BMI) <span class="opt">선택</span></div>
-    <div class="row">
-      <label>키</label><input id="bmi-h" type="number" step="0.1" oninput="calc()"> cm
-      <label>체중</label><input id="bmi-w" type="number" step="0.1" oninput="calc()"> kg
-      <label class="pill" style="margin-left:10px;"><input type="checkbox" id="rf-waist" onchange="calc()">복부비만 (허리둘레 남 ≥90·여 ≥85 cm)</label>
-    </div>
-    <div id="bmi-result" class="result">키와 체중을 입력하세요. (BMI ≥25 또는 복부비만 → 위험인자 자동 반영)</div>
-
-    <div class="subhead">혈중 지질 — LDL 자동 산출 <span class="opt">선택</span></div>
-    <div class="row">
-      <label>총콜레스테롤</label><input id="lip-tc" type="number" oninput="calc()"> mg/dL
-      <label>HDL-C</label><input id="lip-hdl" type="number" oninput="calc()"> mg/dL
-      <label>TG</label><input id="lip-tg" type="number" oninput="calc()"> mg/dL
-    </div>
-    <div id="lip-result" class="result">지질 수치를 입력하세요. (TC ≥240·LDL ≥160·HDL &lt;40·TG ≥200 중 하나 → 이상지질혈증 자동 반영)</div>
-
-    <div class="subhead">당화혈색소 (HbA1c) <span class="opt">선택</span></div>
-    <div class="row">
-      <label>HbA1c</label><input id="hba1c" type="number" step="0.1" oninput="calc()"> %
-      <span class="muted">≥6.5% → 당뇨병(2개), 5.7~6.4% → 당뇨병 전단계(1개). 입력 시 2번 당뇨병 항목은 자동 판정으로 대체됩니다.</span>
-    </div>
-    <div id="hba1c-result" class="result">HbA1c를 입력하세요. (선택)</div>
-
-    <div class="subhead">신장 기능 (eGFR) <span class="opt">선택</span></div>
-    <div class="row">
-      <label>혈청 크레아티닌</label><input id="egfr-cr" type="number" step="0.01" oninput="calc()"> mg/dL
-      <span class="muted">성별·나이는 위 값 사용 · CKD 3기↑(eGFR &lt;60) → 임상적 CKD 자동 반영</span>
-    </div>
-    <div id="egfr-result" class="result">혈청 크레아티닌을 입력하세요.</div>
-
-    <div class="subhead">요 알부민/크레아티닌 (UACR) <span class="opt">선택</span></div>
-    <div class="row">
-      <label>요 알부민</label><input id="uacr-alb" type="number" step="0.1" oninput="calc()">
-      <select id="uacr-alb-unit" onchange="calc()"><option value="mgL">mg/L</option><option value="mgdL">mg/dL</option><option value="ugmL">µg/mL</option></select>
-      <label>요 크레아티닌</label><input id="uacr-cr" type="number" step="0.1" oninput="calc()">
-      <select id="uacr-cr-unit" onchange="calc()"><option value="mgdL">mg/dL</option><option value="gL">g/L</option><option value="mmolL">mmol/L</option></select>
-    </div>
-    <div id="uacr-result" class="result">요 알부민과 크레아티닌을 입력하세요. (30~300 → 미세알부민뇨, &gt;300 → 현성단백뇨 자동 반영)</div>
-  </div>
-
-  <!-- 2. 동반 위험인자 -->
-  <div class="card full">
-    <h2>2. 동반 위험인자 (표 10)</h2>
-    <div class="muted" style="margin-bottom:8px;">나이·비만·이상지질혈증은 1번 입력값에서 자동 반영됩니다. 아래 항목만 체크하세요.</div>
-    <div class="factor-grid">
-      <label class="chk"><input type="checkbox" id="rf-smoke" onchange="calc()"><span>흡연<span class="def">현재 흡연 (또는 최근 1년 이내 금연)</span></span></label>
-      <label class="chk"><input type="checkbox" id="rf-fhx" onchange="calc()"><span>조기 심뇌혈관 가족력<span class="def">남 &lt;55세, 여 &lt;65세 발병</span></span></label>
-      <label class="chk" id="rf-predm-wrap"><input type="checkbox" id="rf-predm" onchange="calc()"><span>당뇨병 전단계<span class="def">공복혈당 100~124 mg/dL (위험인자 1개)</span></span></label>
-      <label class="chk" id="rf-dm-wrap"><input type="checkbox" id="rf-dm" onchange="calc()"><span>당뇨병<span class="def">공복 ≥125, OGTT 2h ≥200 (위험인자 2개)</span></span></label>
-    </div>
-    <div id="dm-auto-note" class="muted" style="display:none;margin-top:8px;"></div>
-    <div id="rf-result" class="result">위험인자: 0개</div>
-  </div>
-
-  <!-- 3. 무증상 장기손상 -->
   <div class="card">
-    <h2>3. 무증상 장기 손상 (표 10)</h2>
-    <div class="muted" style="margin-bottom:8px;">해당 병명·상황을 모두 체크하세요. 미세알부민뇨는 1번 UACR에서 자동 반영됩니다.</div>
-    <div class="factor-grid">
-      <label class="chk"><input type="checkbox" id="tod-lvh" onchange="calc()"><span>좌심실 비대<span class="def">심전도·심초음파 기준</span></span></label>
-      <label class="chk"><input type="checkbox" id="tod-plaque" onchange="calc()"><span>죽상경화반<span class="def">경동맥 등 동맥 죽상반</span></span></label>
-      <label class="chk"><input type="checkbox" id="tod-pwv" onchange="calc()"><span>동맥경직도 증가<span class="def">cfPWV &gt;10 또는 baPWV &gt;18 m/s</span></span></label>
-      <label class="chk"><input type="checkbox" id="tod-cac" onchange="calc()"><span>관상동맥 석회화<span class="def">CAC 점수 ≥400</span></span></label>
-      <label class="chk"><input type="checkbox" id="tod-abi" onchange="calc()"><span>발목-위팔 지수 저하<span class="def">ABI &lt;0.9</span></span></label>
-      <label class="chk"><input type="checkbox" id="tod-retino" onchange="calc()"><span>고혈압성 망막증<span class="def">3~4단계</span></span></label>
-      <label class="chk"><input type="checkbox" id="tod-brain" onchange="calc()"><span>무증상 뇌병변<span class="def">뇌실주위백질변성·미세출혈·무증상 뇌경색</span></span></label>
-    </div>
+    <h2>1. BMI Calculator</h2>
+    <div class="row"><label>Height</label><input id="bmi-h" type="number" onkeydown="handleEnter(event, calcBMI)"> cm <label>Weight</label><input id="bmi-w" type="number" onkeydown="handleEnter(event, calcBMI)"> kg <button onclick="calcBMI()">Calculate</button></div>
+    <div id="bmi-result" class="result">Result will appear here.</div>
   </div>
 
-  <!-- 4. 임상적 CVD/CKD -->
   <div class="card">
-    <h2>4. 임상적 심뇌혈관·콩팥질환 (표 10)</h2>
-    <div class="muted" style="margin-bottom:8px;">해당 병명을 모두 체크하세요. 하나라도 있으면 고위험군입니다. CKD(eGFR&lt;60)·현성단백뇨는 1번 입력값에서 자동 반영됩니다.</div>
-    <div class="factor-grid">
-      <label class="chk"><input type="checkbox" id="cvd-stroke" onchange="calc()"><span>뇌혈관질환<span class="def">뇌졸중 · 일과성 허혈발작(TIA) · 혈관성 치매</span></span></label>
-      <label class="chk"><input type="checkbox" id="cvd-angina" onchange="calc()"><span>협심증 / 관상동맥질환<span class="def">심근경색 포함</span></span></label>
-      <label class="chk"><input type="checkbox" id="cvd-hf" onchange="calc()"><span>심부전<span class="def">heart failure</span></span></label>
-      <label class="chk"><input type="checkbox" id="cvd-af" onchange="calc()"><span>심방세동<span class="def">atrial fibrillation</span></span></label>
-      <label class="chk"><input type="checkbox" id="cvd-pad" onchange="calc()"><span>말초혈관질환<span class="def">peripheral artery disease</span></span></label>
-      <label class="chk"><input type="checkbox" id="cvd-aorta" onchange="calc()"><span>대동맥류 / 대동맥 박리<span class="def">aortic aneurysm / dissection</span></span></label>
-    </div>
+    <h2>2. eGFR Calculator</h2>
+    <div class="row"><label>Age</label><input id="egfr-age" type="number" onkeydown="handleEnter(event, calcEGFR)">
+      <label>Sex</label><label class="pill"><input type="radio" id="egfr-m" name="egfr-sex" checked>Male</label><label class="pill"><input type="radio" id="egfr-f" name="egfr-sex">Female</label>
+      <label>Serum Cr</label><input id="egfr-cr" type="number" step="0.01" onkeydown="handleEnter(event, calcEGFR)"> mg/dL <button onclick="calcEGFR()">Calculate</button></div>
+    <div id="egfr-result" class="result">Result will appear here.</div>
   </div>
 
-  <!-- 결과 -->
   <div class="card full">
-    <h2>위험도 분류 및 치료 안내</h2>
-    <div id="result" class="result">위 항목을 입력하면 위험도가 자동 계산됩니다.</div>
-    <div id="treat"></div>
-    <p class="gl-cap">표 11. 고혈압 치료 방침 결정을 위한 심뇌혈관질환 위험도 분류</p>
-    <div id="matrix"></div>
+    <h2>3. UACR Calculator</h2>
+    <div class="muted">Calculates urine albumin-to-creatinine ratio in mg/g. Useful for CKD staging and PREVENT optional UACR input.</div>
+    <div class="row">
+      <label>Urine albumin</label><input id="uacr-alb" type="number" step="0.1" onkeydown="handleEnter(event, calcUACR)">
+      <select id="uacr-alb-unit"><option value="mgL">mg/L</option><option value="mgdL">mg/dL</option><option value="ugmL">µg/mL</option></select>
+      <label>Urine Cr</label><input id="uacr-cr" type="number" step="0.1" onkeydown="handleEnter(event, calcUACR)">
+      <select id="uacr-cr-unit"><option value="mgdL">mg/dL</option><option value="gL">g/L</option><option value="mmolL">mmol/L</option></select>
+      <button onclick="calcUACR()">Calculate UACR</button>
+    </div>
+    <div id="uacr-result" class="result">Result will appear here.</div>
+  </div>
+
+  <div class="card full">
+    <h2>4. LDL-C Calculator</h2>
+    <div class="row"><label>Total-C</label><input id="ldl-tc" type="number" onkeydown="handleEnter(event, calcLDL)"> <label>HDL-C</label><input id="ldl-hdl" type="number" onkeydown="handleEnter(event, calcLDL)"> <label>TG</label><input id="ldl-tg" type="number" onkeydown="handleEnter(event, calcLDL)"> mg/dL <button onclick="calcLDL()">Calculate LDL-C</button></div>
+    <div id="ldl-result" class="result">Result will appear here.</div>
+  </div>
+
+  <div class="card full">
+    <h2>5. AHA PREVENT Calculator <button type="button" class="copyAllBtn" onclick="copyPreventInputsAll()">Autofill from above</button></h2>
+    <div id="prev-copyall-msg" class="muted" style="font-size:12px;margin:-4px 0 8px;"></div>
+    <div class="muted">Offline PREVENT implementation. HbA1c, UACR, and SDI are optional enhancers. ZIP code is automatically converted to SDI decile using the embedded Robert Graham Center ZCTA SDI_score dataset (2015–2019).</div>
+    <div class="prevent-grid">
+      <div><label>Age <button type="button" onclick="copyFromEGFRSexAge()" style="padding:2px 6px;width:auto;">copy</button></label><input id="prev-age" type="number"></div>
+      <div><label>Sex <button type="button" onclick="copyFromEGFRSexAge()" style="padding:2px 6px;width:auto;">copy</button></label><span><label class="pill"><input type="radio" id="prev-m" name="prev-sex" checked>Male</label><label class="pill"><input type="radio" id="prev-f" name="prev-sex">Female</label></span></div>
+      <div><label>SBP</label><input id="prev-sbp" type="number"></div>
+      <div><label>BP treatment</label><select id="prev-htn"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div><label>Statin use</label><select id="prev-statin"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div><label>Total-C <button type="button" onclick="copyFromLipids()" style="padding:2px 6px;width:auto;">copy</button></label><input id="prev-tc" type="number"></div>
+      <div><label>HDL-C <button type="button" onclick="copyFromLipids()" style="padding:2px 6px;width:auto;">copy</button></label><input id="prev-hdl" type="number"></div>
+      <div><label>Diabetes</label><select id="prev-dm"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div><label>Current smoking</label><select id="prev-smoke"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div><label>BMI <button type="button" onclick="copyFromBMI()" style="padding:2px 6px;width:auto;">copy</button></label><input id="prev-bmi" type="number" step="0.1"></div>
+      <div><label>eGFR <button type="button" onclick="copyFromEGFR()" style="padding:2px 6px;width:auto;">copy</button></label><input id="prev-egfr" type="number" step="0.1"></div>
+      <div><label>HbA1c (%) <span class="muted">optional</span></label><input id="prev-hba1c" type="number" step="0.1" placeholder="blank OK"></div>
+      <div><label>UACR (mg/g) <button type="button" onclick="copyFromUACR()" style="padding:2px 6px;width:auto;">copy</button> <span class="muted">optional</span></label><input id="prev-uacr" type="number" step="0.1" placeholder="blank OK"></div>
+      <div><label>ZIP code <span class="muted">optional SDI lookup</span></label><input id="prev-zip" type="text" maxlength="5" placeholder="5-digit ZIP" onblur="deriveSDIFromZip()"><input id="prev-sdi" type="hidden"><div id="zip-sdi-msg" class="muted" style="font-size:12px;margin-top:3px;"></div></div>
+      <div><label>&nbsp;</label><button onclick="calcPREVENT()">Calculate PREVENT</button></div>
+    </div>
+    <div id="prevent-result" class="result">Result will appear here.</div>
   </div>
 
   <div class="full footer">
-    임상 의사결정 보조 도구입니다. 출처: 대한고혈압학회 2026년 고혈압 진료지침, 표 10·표 11·표 13, 권고 8~13.
-    eGFR는 CKD-EPI 2021(race-free), UACR는 요 알부민/크레아티닌 비율, LDL은 Sampson/NIH 식으로 계산합니다.
-    표 11의 경계 셀("또는")은 지침 본문(고혈압 전단계 + 위험인자 ≥3개 → 60세 이상 고위험군·미만 중위험군, 전단계 + 위험인자 2개 → 중위험군 등)을 적용해 단일 위험군으로 결정하며, 표에는 원본과 동일하게 범위를 함께 표시합니다. 목표 혈압·치료 시작 안내는 권고 8~13 및 표 13 기준이며, 최종 판단은 임상의가 환자 상태를 종합하여 결정해야 합니다.
-    <div class="themePanel">
-      <label for="themeSelector">화면 테마</label>
-      <select id="themeSelector" onchange="setThemeFromSelector()">
-        <option value="system">시스템 설정 따름</option>
-        <option value="light">밝은 테마</option>
-        <option value="dark">어두운 테마</option>
-      </select>
-      <div class="muted" style="margin-top:6px;">테마 설정은 이 기기에 저장됩니다.</div>
-    </div>
-    <div class="bottomActions"><button class="clearBtn" onclick="clearAll()">전체 지우기</button></div>
-  </div>
+    Clinical decision support only. Verify units, patient eligibility, and local laboratory standards. PREVENT is intended for adults 30–79 years without prior CVD. This offline build implements Total CVD, ASCVD, and HF with automatic PREVENT model selection; CHD and stroke subtype coefficients are not included.
+    
+<div class="themePanel">
+  <label for="themeSelector">Appearance</label>
+  <select id="themeSelector" onchange="setThemeFromSelector()">
+    <option value="system">Follow system</option>
+    <option value="light">Light theme</option>
+    <option value="dark">Dark theme</option>
+  </select>
+  <div class="muted" style="margin-top:6px;">Theme preference is saved locally on this device.</div>
 </div>
 
+<div class="bottomActions"><button onclick="clearAll()" class="clearBtn">Clear all</button></div>
+  </div>
+</div>
+<div id="derivationWarning" style="display:none;color:#b45309;font-weight:bold;margin:12px 0;"></div>
+
 <script>
-function num(id){ var v=parseFloat(document.getElementById(id).value); return isNaN(v)?NaN:v; }
-function chk(id){ return document.getElementById(id).checked; }
-
-// ── BMI ──
-function computeBMI(){
-  var h=num('bmi-h'), w=num('bmi-w');
-  if(isNaN(h)||isNaN(w)||h<=0||w<=0) return null;
-  var bmi=w/Math.pow(h/100,2), cat;
-  if(bmi<18.5)cat="저체중"; else if(bmi<23)cat="정상"; else if(bmi<25)cat="과체중"; else if(bmi<30)cat="비만"; else cat="고도비만";
-  return {bmi:bmi, cat:cat, obese:bmi>=25};
-}
-// ── LDL 복사 ──
-function copyLDL(value){
-  var txt = "LDL-C " + Number(value).toFixed(1) + " mg/dL (Sampson/NIH)";
-  var done = function(){
-    var b = document.querySelector('.ldl-copy-btn');
-    if(b){ var o=b.textContent; b.textContent='복사됨'; setTimeout(function(){b.textContent=o;},1200); }
-  };
-  try{
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(txt).then(done, function(){ fallbackCopy(txt); done(); });
-    } else { fallbackCopy(txt); done(); }
-  }catch(e){ fallbackCopy(txt); done(); }
-}
-function fallbackCopy(txt){
-  var ta=document.createElement('textarea');
-  ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
-  document.body.appendChild(ta); ta.select();
-  try{ document.execCommand('copy'); }catch(e){}
-  document.body.removeChild(ta);
-}
-
-// ── 지질 / LDL (Sampson/NIH + Martin-Hopkins) ──
-var martinTable = [
-  {min:0,max:49,f:[3.5,3.4,3.3,3.3,3.2,3.1]},{min:50,max:56,f:[4.0,3.9,3.7,3.6,3.6,3.4]},
-  {min:57,max:61,f:[4.3,4.1,4.0,3.9,3.8,3.6]},{min:62,max:66,f:[4.5,4.3,4.1,4.0,3.9,3.9]},
-  {min:67,max:71,f:[4.7,4.4,4.3,4.2,4.1,3.9]},{min:72,max:75,f:[4.8,4.6,4.4,4.2,4.2,4.1]},
-  {min:76,max:79,f:[4.9,4.6,4.5,4.3,4.3,4.2]},{min:80,max:83,f:[5.0,4.8,4.6,4.4,4.3,4.2]},
-  {min:84,max:87,f:[5.1,4.8,4.6,4.5,4.4,4.3]},{min:88,max:92,f:[5.2,4.9,4.7,4.6,4.4,4.3]},
-  {min:93,max:96,f:[5.3,5.0,4.8,4.7,4.5,4.4]},{min:97,max:100,f:[5.4,5.1,4.8,4.7,4.5,4.3]},
-  {min:101,max:105,f:[5.5,5.2,5.0,4.7,4.6,4.5]},{min:106,max:110,f:[5.6,5.3,5.0,4.8,4.6,4.5]},
-  {min:111,max:115,f:[5.7,5.4,5.1,4.9,4.7,4.5]},{min:116,max:120,f:[5.8,5.5,5.2,5.0,4.8,4.6]},
-  {min:121,max:126,f:[6.0,5.5,5.3,5.0,4.8,4.6]},{min:127,max:132,f:[6.1,5.7,5.3,5.1,4.9,4.7]},
-  {min:133,max:138,f:[6.2,5.8,5.4,5.2,5.0,4.7]},{min:139,max:146,f:[6.3,5.9,5.6,5.3,5.0,4.8]},
-  {min:147,max:154,f:[6.5,6.0,5.7,5.4,5.1,4.8]},{min:155,max:163,f:[6.7,6.2,5.8,5.4,5.2,4.9]},
-  {min:164,max:173,f:[6.8,6.3,5.9,5.5,5.3,5.0]},{min:174,max:185,f:[7.0,6.5,6.0,5.7,5.4,5.1]},
-  {min:186,max:201,f:[7.3,6.7,6.2,5.8,5.5,5.2]},{min:202,max:220,f:[7.6,6.9,6.4,6.0,5.6,5.3]},
-  {min:221,max:247,f:[8.0,7.2,6.6,6.2,5.9,5.4]},{min:248,max:292,f:[8.5,7.6,7.0,6.5,6.1,5.6]},
-  {min:293,max:399,f:[9.5,8.3,7.5,7.0,6.5,5.9]},{min:400,max:99999,f:[11.9,10.0,8.8,8.1,7.5,6.7]}
-];
-function martinFactor(tg,nonHdl){
-  var c = nonHdl<100?0:nonHdl<=129?1:nonHdl<=159?2:nonHdl<=189?3:nonHdl<=219?4:5;
-  for(var i=0;i<martinTable.length;i++) if(tg>=martinTable[i].min&&tg<=martinTable[i].max) return martinTable[i].f[c];
-  return martinTable[martinTable.length-1].f[c];
-}
-function computeLipids(){
-  var tc=num('lip-tc'), hdl=num('lip-hdl'), tg=num('lip-tg');
-  if(isNaN(tc)||isNaN(hdl)||isNaN(tg)||tc<=0||hdl<=0||tg<0||tc<=hdl) return null;
-  var nonHdl=tc-hdl;
-  var factor=martinFactor(tg,nonHdl);
-  var martin=nonHdl - tg/factor;
-  var sampson=tc/0.948 - hdl/0.971 - (tg/8.56 + (tg*nonHdl)/2140 - (tg*tg)/16100) - 9.44;
-  var ldl=sampson;
-  var crit=[];
-  if(tc>=240) crit.push("TC ≥240");
-  if(ldl>=160) crit.push("LDL ≥160");
-  if(hdl<40) crit.push("HDL <40");
-  if(tg>=200) crit.push("TG ≥200");
-  return {tc:tc,hdl:hdl,tg:tg,nonHdl:nonHdl,ldl:ldl,martin:martin,factor:factor,dyslip:crit.length>0,crit:crit,tgWarn:tg>=400};
-}
-// ── HbA1c → 당뇨/전단계 자동 판정 ──
-function computeHbA1c(){
-  var v=num('hba1c');
-  if(isNaN(v)) return null;
-  if(v>=6.5) return {val:v, status:'dm', label:"당뇨병 (위험인자 2개)"};
-  if(v>=5.7) return {val:v, status:'predm', label:"당뇨병 전단계 (위험인자 1개)"};
-  return {val:v, status:'normal', label:"정상"};
-}
-// ── eGFR (CKD-EPI 2021, race-free) ──
-function computeEGFR(){
-  var age=num('age'), cr=num('egfr-cr'), F=chk('sex-f');
-  if(isNaN(cr)||cr<=0||isNaN(age)||age<=0) return null;
-  var k=F?0.7:0.9, a=F?-0.241:-0.302, sf=F?1.012:1.0, ratio=cr/k;
-  var egfr=142*Math.pow(Math.min(ratio,1),a)*Math.pow(Math.max(ratio,1),-1.2)*Math.pow(0.9938,age)*sf;
-  var st = egfr>=90?"G1":egfr>=60?"G2":egfr>=45?"G3a":egfr>=30?"G3b":egfr>=15?"G4":"G5";
-  return {egfr:egfr, stage:st, ckd:egfr<60};
-}
-// ── UACR (mg/g) ──
-function computeUACR(){
-  var alb=num('uacr-alb'), cr=num('uacr-cr');
-  if(isNaN(alb)||isNaN(cr)||alb<0||cr<=0) return null;
-  var au=document.getElementById('uacr-alb-unit').value, cu=document.getElementById('uacr-cr-unit').value;
-  var albMgDl=alb; if(au==='mgL')albMgDl=alb/10.0; if(au==='ugmL')albMgDl=alb/10.0;
-  var crGDl=cr/1000.0; if(cu==='gL')crGDl=cr/10.0; if(cu==='mmolL')crGDl=cr*0.11312/10.0;
-  var uacr=albMgDl/crGDl;
-  var cat = uacr<30?{name:"A1 정상~경도",key:"a1"}:(uacr<=300?{name:"A2 미세알부민뇨",key:"a2"}:{name:"A3 현성단백뇨",key:"a3"});
-  return {uacr:uacr, cat:cat};
-}
-
-// 혈압 단계
-function bpCategory(sbp, dbp){
-  function cat(s,d){
-    if(s>=160||d>=100)return 4; if(s>=140||d>=90)return 3; if(s>=130||d>=80)return 2;
-    if((s>=120&&s<=129)&&d<80)return 1; return 0;
-  }
-  var c=cat(sbp,dbp);
-  var names={0:"정상혈압 (<120/80)",1:"주의혈압 (120~129/<80)",2:"고혈압 전단계 (130~139/80~89)",3:"1기 고혈압 (140~159/90~99)",4:"2기 고혈압 (≥160/100)"};
-  return {code:c,name:names[c]};
-}
-
-// 위험인자 개수 (나이≥65, 당뇨병 = 2개). obese·dyslip·dm·predm은 자동 계산값
-function riskFactorCount(obese,dyslip,dm,predm){
-  var male=chk('sex-m'), age=num('age'), pts=0, detail=[];
-  var ageRF=0;
-  if(!isNaN(age)){
-    if(age>=65){ageRF=2;detail.push("나이 ≥65세 (2개)");}
-    else if(male&&age>=45){ageRF=1;detail.push("나이 남 ≥45세 (1개)");}
-    else if(!male&&age>=55){ageRF=1;detail.push("나이 여 ≥55세 (1개)");}
-  }
-  pts+=ageRF;
-  if(chk('rf-smoke')){pts+=1;detail.push("흡연 (1개)");}
-  if(chk('rf-fhx')){pts+=1;detail.push("조기 가족력 (1개)");}
-  if(obese){pts+=1;detail.push("비만/복부비만 (1개)");}
-  if(dyslip){pts+=1;detail.push("이상지질혈증 (1개)");}
-  if(dm){pts+=2;detail.push("당뇨병 (2개)");}
-  else if(predm){pts+=1;detail.push("당뇨병 전단계 (1개)");}
-  return {count:pts,detail:detail};
-}
-function anyChecked(ids){ for(var i=0;i<ids.length;i++){ var el=document.getElementById(ids[i]); if(el&&el.checked) return true; } return false; }
-var TOD_IDS=['tod-lvh','tod-plaque','tod-pwv','tod-cac','tod-abi','tod-retino','tod-brain'];
-var CVD_IDS=['cvd-stroke','cvd-angina','cvd-hf','cvd-af','cvd-pad','cvd-aorta'];
-
-function riskRow(count,tod,cvd){ if(cvd)return 4; if(count>=3||tod)return 3; if(count>=1)return 2; return 1; }
-
-var RISK = {
-  lowest:{name:"최저위험군",cls:"b-lowest",cell:"c-lowest",inc:"10년 발생률 <5%"},
-  low:{name:"저위험군",cls:"b-low",cell:"c-low",inc:"10년 발생률 5~10%"},
-  mod:{name:"중위험군",cls:"b-mod",cell:"c-mod",inc:"10년 발생률 10~15%"},
-  high:{name:"고위험군",cls:"b-high",cell:"c-high",inc:"10년 발생률 >15%"}
-};
-var TABLE11 = {
-  1:{2:["lowest"],     3:["low"],   4:["mod","high"]},
-  2:{2:["low","mod"],  3:["mod"],   4:["high"]},
-  3:{2:["mod","high"], 3:["high"],  4:["high"]},
-  4:{2:["high"],       3:["high"],  4:["high"]}
-};
-
-function getState(){
-  var bp=bpCategory(num('sbp'),num('dbp'));
-  var bmi=computeBMI(), lip=computeLipids(), eg=computeEGFR(), ua=computeUACR(), hb=computeHbA1c();
-  var obese = (!!(bmi&&bmi.obese)) || chk('rf-waist');
-  var dyslip = !!(lip&&lip.dyslip);
-  var dm = hb ? hb.status==='dm' : chk('rf-dm');
-  var predm = hb ? hb.status==='predm' : chk('rf-predm');
-  var rf=riskFactorCount(obese,dyslip,dm,predm);
-  var autoTOD = !!(ua && ua.cat.key==='a2');
-  var autoCVD = !!(eg && eg.ckd) || !!(ua && ua.cat.key==='a3');
-  var effTOD = anyChecked(TOD_IDS) || autoTOD;
-  var effCVD = anyChecked(CVD_IDS) || autoCVD;
-  var row = riskRow(rf.count, effTOD, effCVD);
-  return {bp:bp,rf:rf,bmi:bmi,lip:lip,eg:eg,ua:ua,hb:hb,dm:dm,predm:predm,obese:obese,dyslip:dyslip,
-          autoTOD:autoTOD,autoCVD:autoCVD,effTOD:effTOD,effCVD:effCVD,row:row};
-}
-
-// 경계 셀까지 단일 위험군으로 확정
-function resolve(st){
-  if(st.effCVD) return {key:'high',why:'임상적 심뇌혈관질환 또는 CKD 동반 → 혈압과 무관하게 고위험군'};
-  if(st.bp.code<2) return null;
-  var cell=TABLE11[st.row][st.bp.code];
-  if(cell.length===1) return {key:cell[0],why:null};
-  var age=num('age'), n=st.rf.count;
-  if(st.row===2 && st.bp.code===2)
-    return n>=2 ? {key:'mod',why:'고혈압 전단계 + 위험인자 2개 → 중위험군'} : {key:'low',why:'고혈압 전단계 + 위험인자 1개 → 저위험군'};
-  if(st.row===3 && st.bp.code===2)
-    return (!isNaN(age)&&age>=60) ? {key:'high',why:'고혈압 전단계 + 위험인자 3개↑/장기손상, 60세 이상 → 고위험군'} : {key:'mod',why:'고혈압 전단계 + 위험인자 3개↑/장기손상, 60세 미만 → 최소 중위험군'};
-  if(st.row===1 && st.bp.code===4)
-    return {key:'mod',why:'위험인자 없는 2기 고혈압 → 중위험군'};
-  return {key:cell[1],why:null};
-}
-
-function badge(key){ var r=RISK[key]; return "<span class='badge "+r.cls+"'>"+r.name+"</span>"; }
-function rowName(r){ return {1:"동반 위험인자 0개",2:"동반 위험인자 1~2개",3:"위험인자 ≥3개 / 당뇨병+1개 / 무증상 장기손상",4:"심혈관질환·만성콩팥병"}[r]; }
-
-// 목표 혈압 (표 13) — 고위험/당뇨/CVD/CKD < 130/80, 그 외 < 140/90
-function bpTarget(st, riskKey){
-  var diabetic = st.dm;
-  if(riskKey==='high' || st.effCVD || diabetic) return "130/80 mmHg 미만";
-  return "140/90 mmHg 미만";
-}
-// 치료 시작 방법 (권고 8~11)
-function treatmentPlan(st, riskKey){
-  var code=st.bp.code; // 2 전단계, 3 1기, 4 2기
-  var plan;
-  if(st.effCVD){
-    plan = "생활요법과 함께 약물치료를 시작합니다. 동반 심뇌혈관질환·콩팥질환에 대한 치료를 병행합니다.";
-  } else if(code===4){
-    plan = "생활요법과 <b>동시에 즉시 약물치료</b>를 시작합니다. (권고 10)";
-  } else if(code===3){
-    plan = (riskKey==='low')
-      ? "적극적 생활요법을 우선 시행하고, 혈압 조절 상태에 따라 약물치료를 고려합니다. (저위험 1기, 권고 9)"
-      : "생활요법과 함께 <b>약물치료를 시작</b>합니다. (중·고위험 1기, 권고 9)";
-  } else if(code===2){
-    if(riskKey==='high' || st.dm || st.effCVD){
-      plan = "적극적 생활요법을 우선 시행하고, 3개월 후에도 혈압이 130/80 mmHg 이상이면 약물치료를 고려합니다. (고위험 전단계, 권고 8)";
-    } else {
-      plan = "약물치료보다 <b>적극적 생활요법</b>을 우선합니다. 위험도 변화에 따라 추적 관찰합니다. (권고 8)";
+function copyLDLFormatted(value, method) {
+  var txt = "LDL-C " + Number(value).toFixed(1) + " mg/dL ( " + method + " )";
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt);
+    } else if (window.clipboardData) {
+      window.clipboardData.setData("Text", txt);
     }
-  } else {
-    plan = "생활요법으로 혈압 상승 및 심뇌혈관질환을 예방합니다. (정상/주의혈압)";
-  }
-  return plan;
+  } catch(e) {}
 }
-var LIFESTYLE = "소금 섭취 제한(하루 6 g 미만) · 체중 감량(BMI &lt;25) · 절주 · 금연 · 규칙적 유산소 운동 · 채소·과일 위주 식이(DASH) · 스트레스 관리";
-
-function renderTreatment(st, riskKey){
-  var el=document.getElementById('treat');
-  if(!riskKey){ el.innerHTML=""; return; }
-  var target=bpTarget(st, riskKey);
-  var plan=treatmentPlan(st, riskKey);
-  var targetReason = (target.indexOf("130")===0) ? "(고위험군·당뇨병·심혈관질환·만성콩팥병 → 하향 목표)" : "(저·중위험군 일반 목표)";
-  el.innerHTML =
-    "<div class='treat'>"+
-      "<div class='trow'><div class='tk'>목표 혈압</div><div class='tv'><span class='bptarget'>"+target+"</span> <span class='muted'>"+targetReason+"</span></div></div>"+
-      "<div class='trow'><div class='tk'>치료 시작</div><div class='tv'>"+plan+"</div></div>"+
-      "<div class='trow'><div class='tk'>생활요법</div><div class='tv'>"+LIFESTYLE+"</div></div>"+
-    "</div>";
-}
-
-function calc(){
-  var st=getState();
-
-  // 혈압
-  var bpEl=document.getElementById('bp-result');
-  bpEl.innerHTML = (isNaN(num('sbp'))||isNaN(num('dbp'))) ? "혈압을 입력하세요." : "<b>혈압 단계:</b> <span class='bpcat'>"+st.bp.name+"</span>";
-
-  // 위험인자 요약
-  document.getElementById('rf-result').innerHTML =
-    "<b>동반 위험인자: "+st.rf.count+"개</b>" + (st.rf.detail.length? "<div class='muted' style='margin-top:4px;'>"+st.rf.detail.join(" · ")+"</div>":"<div class='muted' style='margin-top:4px;'>해당 없음</div>");
-
-  // BMI
-  var bmiEl=document.getElementById('bmi-result');
-  if(st.bmi){
-    bmiEl.innerHTML = "<b>BMI:</b> "+st.bmi.bmi.toFixed(1)+" kg/m² · <b>"+st.bmi.cat+"</b>"+
-      (st.bmi.obese? "<div class='auto-on' style='margin-top:4px;'>→ BMI ≥25: 비만 위험인자로 자동 반영</div>"
-       : (chk('rf-waist')? "<div class='auto-on' style='margin-top:4px;'>→ 복부비만 체크됨: 비만 위험인자로 자동 반영</div>"
-          : "<div class='muted' style='margin-top:4px;'>BMI &lt;25 — 비만 위험인자에 반영되지 않음</div>"));
-  } else { bmiEl.innerHTML = (chk('rf-waist')? "<span class='auto-on'>복부비만 체크됨: 비만 위험인자로 자동 반영</span>" : "키와 체중을 입력하세요."); }
-
-  // 지질 / LDL
-  var lipEl=document.getElementById('lip-result');
-  if(st.lip){
-    var lhtml = "<b>LDL-C(Sampson/NIH):</b> "+st.lip.ldl.toFixed(1)+" mg/dL "+
-                "<button type='button' class='ldl-copy-btn' onclick='copyLDL("+st.lip.ldl.toFixed(1)+")'>복사</button> · "+
-                "<span class='muted'>Martin-Hopkins "+st.lip.martin.toFixed(1)+" · non-HDL "+st.lip.nonHdl.toFixed(1)+"</span>";
-    lhtml += st.lip.dyslip ? "<div class='auto-on' style='margin-top:4px;'>→ 이상지질혈증 ("+st.lip.crit.join(", ")+"): 위험인자로 자동 반영</div>"
-                           : "<div class='muted' style='margin-top:4px;'>기준 미달 — 이상지질혈증 위험인자에 반영되지 않음</div>";
-    if(st.lip.tgWarn) lhtml += "<div style='color:var(--warn);margin-top:4px;'>TG ≥400: 계산된 LDL은 신중히 해석하세요.</div>";
-    lipEl.innerHTML = lhtml;
-  } else { lipEl.innerHTML = "TC·HDL·TG를 입력하세요 (TC는 HDL보다 커야 함)."; }
-
-  // HbA1c + 2번 당뇨 항목 토글
-  var hbEl=document.getElementById('hba1c-result');
-  var dmWrap=document.getElementById('rf-dm-wrap'), preWrap=document.getElementById('rf-predm-wrap'), dmNote=document.getElementById('dm-auto-note');
-  if(st.hb){
-    var cls = st.hb.status==='normal' ? "muted" : "auto-on";
-    hbEl.innerHTML = "<b>HbA1c:</b> "+st.hb.val.toFixed(1)+"% · <span class='"+cls+"'>"+st.hb.label+"</span>";
-    if(dmWrap) dmWrap.style.display='none';
-    if(preWrap) preWrap.style.display='none';
-    if(document.getElementById('rf-dm')) document.getElementById('rf-dm').checked=false;
-    if(document.getElementById('rf-predm')) document.getElementById('rf-predm').checked=false;
-    if(dmNote){ dmNote.style.display='block'; dmNote.innerHTML="당뇨병 판정은 HbA1c 값으로 자동 처리됩니다 → "+st.hb.label; }
-  } else {
-    hbEl.innerHTML = "HbA1c를 입력하세요. (선택)";
-    if(dmWrap) dmWrap.style.display='';
-    if(preWrap) preWrap.style.display='';
-    if(dmNote) dmNote.style.display='none';
-  }
-
-  // eGFR
-  var egEl=document.getElementById('egfr-result');
-  if(st.eg){
-    egEl.innerHTML = "<b>eGFR:</b> "+st.eg.egfr.toFixed(1)+" mL/min/1.73m² · <b>CKD "+st.eg.stage+"</b>"+
-      (st.eg.ckd? "<div class='auto-on' style='margin-top:4px;'>→ CKD 3기 이상(eGFR &lt;60): 임상적 CKD로 자동 반영 (고위험군)</div>":"<div class='muted' style='margin-top:4px;'>CKD 3기 미만 — 위험인자로 반영되지 않음</div>");
-  } else { egEl.innerHTML = "혈청 크레아티닌과 1번의 나이·성별을 입력하세요."; }
-
-  // UACR
-  var uaEl=document.getElementById('uacr-result');
-  if(st.ua){
-    var extra = st.ua.cat.key==='a2' ? "<div class='auto-on' style='margin-top:4px;'>→ 미세알부민뇨(30~300): 무증상 장기손상으로 자동 반영</div>"
-              : st.ua.cat.key==='a3' ? "<div class='auto-on' style='margin-top:4px;'>→ 현성단백뇨(&gt;300): 임상적 CKD로 자동 반영 (고위험군)</div>"
-              : "<div class='muted' style='margin-top:4px;'>정상 범위 — 위험인자로 반영되지 않음</div>";
-    uaEl.innerHTML = "<b>UACR:</b> "+st.ua.uacr.toFixed(1)+" mg/g · <b>"+st.ua.cat.name+"</b>"+extra;
-  } else { uaEl.innerHTML = "요 알부민과 크레아티닌을 입력하세요."; }
-
-  // 결과
-  var resEl=document.getElementById('result');
-  var rfSummary = st.rf.count+"개"+(st.effTOD?" · 무증상 장기손상 있음":"")+(st.effCVD?" · 임상적 CVD/CKD 있음":"");
-  var r = resolve(st);
-
-  if(st.bp.code<2 && !st.effCVD){
-    resEl.innerHTML =
-      "<div><b>혈압 단계:</b> "+st.bp.name+"</div>"+
-      "<div style='color:var(--warn);font-weight:700;margin-top:6px;'>표 11의 위험도 분류는 고혈압 전단계(≥130/80) 이상에 적용됩니다.</div>"+
-      "<div class='muted' style='margin-top:6px;'>현재 동반 위험인자: "+rfSummary+". 정상/주의혈압 단계에서는 적극적 생활요법과 위험인자 관리·추적이 권고됩니다.</div>";
-    document.getElementById('treat').innerHTML =
-      "<div class='treat'><div class='trow'><div class='tk'>생활요법</div><div class='tv'>"+LIFESTYLE+"</div></div></div>";
-    drawMatrix(st,r); return;
-  }
-
-  var html = "<div style='font-size:16px;margin-bottom:8px;'>"+badge(r.key)+" &nbsp;<span class='muted'>"+RISK[r.key].inc+"</span></div>";
-  if(r.why) html += "<div style='margin-bottom:6px;'>"+r.why+"</div>";
-  html += "<div class='muted'>혈압 단계: <b>"+st.bp.name+"</b> · 적용 행: "+rowName(st.effCVD?4:st.row)+"<br>동반 위험인자: "+rfSummary+"</div>";
-  resEl.innerHTML = html;
-
-  renderTreatment(st, r.key);
-  drawMatrix(st,r);
-}
-
-// 표 11 시각화 (원본 색상 + 환자 셀 강조)
-function drawMatrix(st,resolved){
-  var rows=[{r:1,lab:"동반 위험인자 0개"},{r:2,lab:"동반 위험인자 1~2개"},
-            {r:3,lab:"위험인자 ≥3개 / 당뇨병+1개 /<br>무증상 장기손상"},{r:4,lab:"심혈관질환 · 만성콩팥병"}];
-  var cols=[{c:2,h:"고혈압 전단계<br>130~139/80~89"},{c:3,h:"1기 고혈압<br>140~159/90~99"},{c:4,h:"2기 고혈압<br>≥160/100"}];
-  var activeRow = st.effCVD?4:st.row, activeCol = st.bp.code;
-  function cellClass(arr){ return arr.length===1 ? "c-"+arr[0] : (arr.join("")==="lowmod"?"c-low-mod":"c-mod-high"); }
-  var h="<table class='gl-table'><thead><tr><th>위험도 \\ 혈압(mmHg)</th>";
-  cols.forEach(function(c){ h+="<th>"+c.h+"</th>"; });
-  h+="</tr></thead><tbody>";
-  rows.forEach(function(rw){
-    h+="<tr><td class='lab'>"+rw.lab+"</td>";
-    cols.forEach(function(c){
-      var arr=TABLE11[rw.r][c.c];
-      var txt=arr.map(function(k){return RISK[k].name;}).join("<br>또는<br>");
-      var on=(rw.r===activeRow && c.c===activeCol && activeCol>=2)?" cell-on":"";
-      h+="<td class='cellval "+cellClass(arr)+on+"'>"+txt+"</td>";
-    });
-    h+="</tr>";
-  });
-  h+="<tr><td class='lab'>10년 심뇌혈관질환 발생률</td>"+
-     "<td class='c-lowest'>최저위험군<br>&lt;5%</td><td class='c-low'>저위험군<br>5~10%</td>"+
-     "<td class='c-mod-high'>중위험군 10~15% /<br>고위험군 &gt;15%</td></tr>";
-  h+="</tbody></table>";
-  h+="<div class='gl-legend'>"+
-     "<span><span class='sw' style='background:var(--r-lowest)'></span>최저위험군 &lt;5%</span>"+
-     "<span><span class='sw' style='background:var(--r-low)'></span>저위험군 5~10%</span>"+
-     "<span><span class='sw' style='background:var(--r-mod)'></span>중위험군 10~15%</span>"+
-     "<span><span class='sw' style='background:var(--r-high)'></span>고위험군 &gt;15%</span></div>";
-  document.getElementById('matrix').innerHTML=h;
-}
-
-function clearAll(){ location.reload(); }
-
-// 테마
-function applyTheme(theme){
-  if(theme==='system'){ localStorage.removeItem('cardioquick-theme');
-    var pd=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme',pd?'dark':'light');
-  } else { localStorage.setItem('cardioquick-theme',theme); document.documentElement.setAttribute('data-theme',theme); }
-}
-function setThemeFromSelector(){ applyTheme(document.getElementById('themeSelector').value); }
-function syncThemeSelector(){ var sel=document.getElementById('themeSelector'); if(!sel)return;
-  var saved=localStorage.getItem('cardioquick-theme'); sel.value=saved?saved:'system'; }
-document.addEventListener('DOMContentLoaded', function(){ syncThemeSelector(); calc(); });
 </script>
+
+
+<script>
+
+function applyTheme(theme) {
+  if (theme === 'system') {
+    localStorage.removeItem('cardioquick-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  } else {
+    localStorage.setItem('cardioquick-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+  updateThemeButton(); syncThemeSelector();
+}
+
+function getCurrentTheme() {
+  return document.documentElement.getAttribute('data-theme') || 'light';
+}
+
+function updateThemeButton() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  const t = getCurrentTheme();
+  btn.textContent = t === 'dark' ? 'Dark mode' : 'Light mode';
+}
+
+function toggleTheme() {
+  const current = getCurrentTheme();
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('cardioquick-theme');
+  if (saved === 'dark' || saved === 'light') {
+    document.documentElement.setAttribute('data-theme', saved);
+  } else {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  }
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+      if (!localStorage.getItem('cardioquick-theme')) {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+        updateThemeButton(); syncThemeSelector();
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', updateThemeButton);
+})();
+
+
+function setThemeFromSelector() {
+  var sel = document.getElementById('themeSelector');
+  if (!sel) return;
+  applyTheme(sel.value);
+}
+
+function syncThemeSelector() {
+  var sel = document.getElementById('themeSelector');
+  if (!sel) return;
+
+  var saved = localStorage.getItem('cardioquick-theme');
+  if (!saved) sel.value = 'system';
+  else sel.value = saved;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  syncThemeSelector();
+  updateThemeButton(); syncThemeSelector();
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./service-worker.js').catch(function(err) { console.log('Service worker registration failed:', err); });
+  });
+}
+// Warm the SDI lookup table when the browser is idle so the ZIP field responds instantly.
+window.addEventListener('load', function() {
+  var warm = function(){ loadSdiPacked(); };
+  if ('requestIdleCallback' in window) { requestIdleCallback(warm); } else { setTimeout(warm, 1500); }
+});
+</script>
+
+
+<script>
+function getValSafe(id) {
+  var el = document.getElementById(id);
+  if (!el) return "";
+  return (el.value || "").toString().trim();
+}
+function getSelectTextSafe(id) {
+  var el = document.getElementById(id);
+  if (!el) return "";
+  if (el.options && el.selectedIndex >= 0) return el.options[el.selectedIndex].text;
+  return el.value || "";
+}
+// "Copy all": pull every available value from the calculators above into the
+// PREVENT inputs in one click, by running each individual autofill helper.
+function copyPreventInputsAll() {
+  // Snapshot the PREVENT fields so we can report what actually changed.
+  var fields = ["prev-age", "prev-sbp", "prev-tc", "prev-hdl",
+                "prev-bmi", "prev-egfr", "prev-uacr"];
+  var before = {};
+  fields.forEach(function(id) {
+    var el = document.getElementById(id);
+    before[id] = el ? el.value : "";
+  });
+  var sexBefore = (document.getElementById("prev-f") || {}).checked;
+
+  var fns = ["copyFromEGFRSexAge", "copyFromLipids",
+             "copyFromBMI", "copyFromEGFR", "copyFromUACR"];
+  fns.forEach(function(name) {
+    try { if (typeof window[name] === "function") window[name](); } catch (e) {}
+  });
+
+  // Count how many fields received a value.
+  var filled = 0;
+  fields.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.value !== "" && el.value !== before[id]) filled++;
+  });
+  var sexAfter = (document.getElementById("prev-f") || {}).checked;
+  if (sexAfter !== sexBefore) filled++;
+
+  var msg = document.getElementById("prev-copyall-msg");
+  if (msg) {
+    if (filled > 0) {
+      msg.innerHTML = "Filled " + filled + " field" + (filled === 1 ? "" : "s") +
+                      " from the calculators above.";
+    } else {
+      msg.innerHTML = "Nothing to copy yet \u2014 enter or calculate values in the sections above first.";
+    }
+  }
+}
+</script>
+
 </body>
 </html>
+
+<script>
+function showDerivationWarning() {
+  var warning = document.getElementById('derivationWarning');
+  if (!warning) return;
+
+  var tc = parseFloat(document.getElementById('tc') ? document.getElementById('tc').value : '');
+  var hdl = parseFloat(document.getElementById('hdl') ? document.getElementById('hdl').value : '');
+  var tg = parseFloat(document.getElementById('tg') ? document.getElementById('tg').value : '');
+  var sbp = parseFloat(document.getElementById('sbp') ? document.getElementById('sbp').value : '');
+
+  var out = false;
+
+  if (!isNaN(tc) && (tc < 100 || tc > 400)) out = true;
+  if (!isNaN(hdl) && (hdl < 10 || hdl > 100)) out = true;
+  if (!isNaN(tg) && (tg < 30 || tg > 1000)) out = true;
+  if (!isNaN(sbp) && (sbp < 80 || sbp > 250)) out = true;
+
+  if (out) {
+    warning.innerHTML = "Outside derivation range; interpret cautiously.";
+    warning.style.display = "block";
+  } else {
+    warning.innerHTML = "";
+    warning.style.display = "none";
+  }
+}
+</script>
